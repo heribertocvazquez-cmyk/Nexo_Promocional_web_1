@@ -91,9 +91,26 @@ def logo_amh_asset():
         f'<img class="client-logo-svg" src="{src}" alt="Asociación Mexicana de Hepatología">'
         '</div>'
     )
+def logo_roothua_asset():
+    logo_path = ASSETS_DIR / "roothua_logo.svg"
 
+    if logo_path.exists():
+        logo_uri = asset_data_uri(logo_path)
 
-amh_cliente_logo = logo_amh_asset()
+        return f"""
+        <div class="client-logo-card">
+            <img
+                class="client-logo-svg"
+                src="{logo_uri}"
+                alt="Roothúa"
+            >
+        </div>
+        """
+
+    return ""
+
+amh_cliente_logo = {logo_amh_asset()}
+    {logo_cliente_nuevo_asset()}
 
 # ==================================================
 # PÁGINA COMPLETA
@@ -367,6 +384,7 @@ h1 span, .blue { color: var(--blue2); }
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 30px;
     width: 100%;
     min-height: 100px;
     padding: 10px 0;
@@ -376,23 +394,20 @@ h1 span, .blue { color: var(--blue2); }
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 300px;
+    width: 250px;
     min-width: 0;
-    min-height: 0;
-    padding: 16px 22px;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    background: #FFFFFF;
-    box-shadow: 0 8px 24px rgba(10, 40, 80, 0.06);
+    padding: 10px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
 }
 .client-logo-svg {
     display: block;
     width: 100%;
-    max-width: 230px;
-    max-height: 100px;
+    max-width: 200px;
+    max-height: 90px;
     height: auto;
     object-fit: contain;
-    background: transparent;
 }
 .client-logo-svg {
     display: block;
