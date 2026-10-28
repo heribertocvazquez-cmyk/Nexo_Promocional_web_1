@@ -75,9 +75,9 @@ roothua_imagen = bloque_imagen(
 
 
 def logo_amh_asset():
-    """Usa el logo real que está en assets, incluso si es un .ai/PDF."""
-    asset_path = ASSETS / "Logo_AMH_verde.ai"
-    if not asset_path.exists():
+    """Usa el PDF del logo AMH que está en assets para mostrarlo directamente en la web."""
+    pdf_path = ASSETS / "Logo_AMH_verde.pdf"
+    if not pdf_path.exists():
         return (
             '<div class="client-logo-placeholder">'
             '<span class="client-logo-mark">AMH</span>'
@@ -85,11 +85,9 @@ def logo_amh_asset():
             '</div>'
         )
 
-    data_url = "data:application/pdf;base64," + base64.b64encode(asset_path.read_bytes()).decode("utf-8")
+    data_url = "data:application/pdf;base64," + base64.b64encode(pdf_path.read_bytes()).decode("utf-8")
     return (
-        '<object class="client-logo-pdf" type="application/pdf" data="{data_url}" aria-label="Logo AMH">'
-        '<span style="display:none">Logo AMH</span>'
-        '</object>'
+        '<embed class="client-logo-pdf" src="{data_url}" type="application/pdf" />'
     ).format(data_url=data_url)
 
 
@@ -375,8 +373,8 @@ h1 span, .blue { color: var(--blue2); }
 .client-logo-pdf {
     display: block;
     width: min(520px, 80%);
-    height: 110px;
-    max-height: 110px;
+    height: 120px;
+    max-height: 120px;
     border: none;
     background: transparent;
     box-shadow: none;
@@ -437,7 +435,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
     line-height: 27px;
     text-align: center;
     text-shadow: 0 0 7px #087BFF, 0 0 17px #005BFF, 0 0 30px #005BFF;
-    transform: translate(-50%,-50%) scale(.8) rotate(-8deg);
+    transform: translate(-50%, -50%) scale(.8) rotate(-8deg);
     opacity: 0;
     will-change: transform, opacity;
 }
