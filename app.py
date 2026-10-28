@@ -368,34 +368,39 @@ h1 span, .blue { color: var(--blue2); }
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 86px;
-    padding: 0;
+    min-height: 100px;
+    padding: 10px 0;
     background: transparent;
 }
 .client-logo-card {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 260px;
-    min-height: 120px;
-    padding: 16px 24px;
-    border: 1px solid #D4E4F5;
+    width: 300px;
+    min-width: 0;
+    min-height: 0;
+    padding: 16px 22px;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
-    background: linear-gradient(135deg, #F7FBFF, #FFFFFF);
-    box-shadow: 0 12px 28px rgba(10, 40, 80, 0.06);
+    background: #FFFFFF;
+    box-shadow: 0 8px 24px rgba(10, 40, 80, 0.06);
 }
 .client-logo-feature {
-    width: min(100%, 700px);
+    width: 300px;
     min-width: 0;
-    min-height: 220px;
-    padding: 18px 20px;
-    background: linear-gradient(135deg, #ffffff, #f4faf7);
-    border-color: #cfe4d8;
+    min-height: 0;
+    padding: 18px 22px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
 }
 .client-logo-svg {
     display: block;
-    width: min(100%, 660px);
+    width: 100%;
+    max-width: 230px;
+    max-height: 100px;
     height: auto;
+    object-fit: contain;
 }
 footer {
     border-top: 1px solid var(--border);
