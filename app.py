@@ -75,8 +75,8 @@ roothua_imagen = bloque_imagen(
 
 
 def logo_amh_asset():
-    """Muestra el logo real de AMH subido a assets/logo-hepatologia.svg."""
-    archivo = ASSETS / "logo-hepatologia.svg"
+    """Muestra el logo real de AMH subido a assets/logo-hepatologia-transparente.png."""
+    archivo = ASSETS / "logo-hepatologia-transparente.png"
     if not archivo.exists():
         return (
             '<div class="client-logo-card client-logo-feature">'
@@ -85,7 +85,7 @@ def logo_amh_asset():
             '</div>'
         )
 
-    src = imagen_base64("logo-hepatologia.svg")
+    src = imagen_base64("logo-hepatologia-transparente.png")
     return (
         '<div class="client-logo-card client-logo-feature">'
         f'<img class="client-logo-svg" src="{src}" alt="Asociación Mexicana de Hepatología">'
