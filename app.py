@@ -52,10 +52,12 @@ def bloque_imagen(nombre, clase, etiqueta):
         '</div>'
     )
 
-logo = imagen_base64("nexo-horizontal.svg")
+logo_path = ASSETS / "nexo-horizontal.svg"
 logo_html = (
-    f'<img class="logo-img" src="{logo}" alt="Nexo Promocional">'
-    if logo
+    logo_path.read_text(encoding="utf-8").replace(
+        "<svg ", '<svg class="logo-img" ', 1
+    )
+    if logo_path.is_file()
     else '<span class="logo-mark">N</span><span>NEXO<span class="logo-dot">.</span></span>'
 )
 
@@ -127,7 +129,7 @@ nav {
     margin-right: 5px;
 }
 .logo-dot { color: var(--blue2); }
-.logo-img { max-width: 170px; max-height: 52px; object-fit: contain; }
+.logo-img { display: block; width: 170px; height: 60px; flex: 0 0 auto; }
 .navlinks {
     display: flex;
     flex-wrap: wrap;
@@ -397,7 +399,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
       <a href="#servicios">Servicios</a>
       <a href="#proyectos">Proyectos</a>
       <a href="#proximos">Próximos proyectos</a>
-      <a class="nav-cta" href="#contact-form">Hablemos ↗</a>
+      <a class="nav-cta" href="#contacto">Hablemos ↗</a>
     </div>
   </nav>
 
@@ -408,7 +410,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
       <h1>Tu proyecto.<br>Muchas ideas.<br><span>Un solo Nexo.</span></h1>
       <p>Integramos productos promocionales, impresión, diseño y soluciones digitales para que tu marca llegue más lejos, con menos complicaciones.</p>
       <div class="actions">
-        <a class="btn" href="#contact-form">Cuéntanos tu proyecto ↗</a>
+        <a class="btn" href="#contacto">Cuéntanos tu proyecto ↗</a>
         <a class="btn outline" href="#servicios">Explorar servicios ↓</a>
       </div>
       <div class="hero-meta">
@@ -483,7 +485,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
     </div>
     <div class="upcoming">
       <p>Estamos preparando nuevas colaboraciones y soluciones. Muy pronto compartiremos más detalles; mientras tanto, cuéntanos qué proyecto te gustaría hacer realidad.</p>
-      <a class="btn" href="#contact-form">Platiquemos de tu proyecto ↗</a>
+      <a class="btn" href="#contacto">Platiquemos de tu proyecto ↗</a>
     </div>
   </section>
 
