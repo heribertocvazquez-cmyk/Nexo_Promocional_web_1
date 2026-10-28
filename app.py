@@ -114,7 +114,7 @@ def logo_roothua_asset():
     )
 
 
-amh_cliente_logo = logo_roothua_asset()
+roothua_cliente_logo = logo_roothua_asset()
 
 # ==================================================
 # PÁGINA COMPLETA
