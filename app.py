@@ -1,8 +1,13 @@
 
 import streamlit as st
+import streamlit.components.v1 as components
 from pathlib import Path
+import base64
 import html
 
+# ==================================================
+# CONFIGURACIÓN
+# ==================================================
 st.set_page_config(
     page_title="Nexo Promocional | Ideas que conectan",
     page_icon="✦",
@@ -10,674 +15,663 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# --------------------------------------------------
-# CONFIGURACIÓN
-# --------------------------------------------------
 BASE_DIR = Path(__file__).parent
 ASSETS = BASE_DIR / "assets"
 
-CORREO = ""       # Agrega aquí el correo comercial
-TELEFONO = ""     # Agrega aquí el teléfono
-WHATSAPP = ""     # Agrega aquí el número con código de país, solo dígitos
+# Personaliza estos datos cuando estés listo
+CORREO = ""       # Ejemplo: ventas@tudominio.com
+WHATSAPP = ""     # Ejemplo: 525512345678, solo dígitos
 
-def asset(nombre):
+def imagen_base64(nombre):
+    """Carga una imagen local de assets y la convierte en una imagen incrustada."""
     ruta = ASSETS / nombre
-    return str(ruta) if ruta.exists() else None
+    if not ruta.exists():
+        return ""
+    extension = ruta.suffix.lower()
+    mime = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".svg": "image/svg+xml",
+    }.get(extension, "application/octet-stream")
+    contenido = base64.b64encode(ruta.read_bytes()).decode("utf-8")
+    return f"data:{mime};base64,{contenido}"
 
-def seccion(titulo, texto=None, etiqueta=None):
-    tag = f'<div class="eyebrow">{html.escape(etiqueta)}</div>' if etiqueta else ""
-    desc = f'<p class="section-desc">{html.escape(texto)}</p>' if texto else ""
-    st.markdown(
-        f'<div class="section-heading">{tag}'
-        f'<h2>{html.escape(titulo)}</h2>{desc}</div>',
-        unsafe_allow_html=True,
+def bloque_imagen(nombre, clase, etiqueta):
+    src = imagen_base64(nombre)
+    if src:
+        return (
+            f'<div class="{clase}">'
+            f'<img src="{src}" alt="{html.escape(etiqueta)}">'
+            '</div>'
+        )
+    return (
+        f'<div class="{clase} placeholder">'
+        f'<span>{html.escape(etiqueta)}</span>'
+        '</div>'
     )
 
-def tarjeta(numero, titulo, descripcion):
-    st.markdown(
-        f"""
-        <div class="service-card">
-            <div class="service-number">{numero}</div>
-            <h3>{html.escape(titulo)}</h3>
-            <p>{html.escape(descripcion)}</p>
-            <div class="card-line"></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+logo = imagen_base64("logo-nexo.png")
+logo_html = (
+    f'<img class="logo-img" src="{logo}" alt="Nexo Promocional">'
+    if logo
+    else '<span class="logo-mark">N</span><span>NEXO<span class="logo-dot">.</span></span>'
+)
 
-# --------------------------------------------------
-# ESTILO VISUAL
-# --------------------------------------------------
-st.markdown("""
+amh_imagen = bloque_imagen(
+    "amh-entrega-01.jpg", "project-image", "AMH · Materiales para eventos"
+)
+productos_imagen = bloque_imagen(
+    "productos-promocionales.jpg", "project-image", "Productos promocionales"
+)
+roothua_imagen = bloque_imagen(
+    "roothua-proyecto.jpg", "project-image", "Roothúa · Mobiliario y renovación"
+)
+
+# ==================================================
+# PÁGINA COMPLETA
+# ==================================================
+pagina = r"""
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
-
 :root {
-    --navy: #09223D;
-    --navy2: #103858;
-    --cyan: #16C1C8;
-    --cyan-light: #DDF9F8;
-    --ink: #14283D;
-    --muted: #64758A;
-    --paper: #F5F8FB;
-    --white: #FFFFFF;
+    --bg: #030812;
+    --bg2: #071326;
+    --panel: #091629;
+    --blue: #087BFF;
+    --blue2: #36A0FF;
+    --cyan: #62DDFE;
+    --white: #F4F8FF;
+    --muted: #A5B6CC;
+    --border: #172A43;
 }
-
+* { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-.stApp {
-    background: var(--white);
-    color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--white);
+    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
 }
-#MainMenu, footer, header { visibility: hidden; }
-[data-testid="stSidebar"] { display: none; }
-.block-container {
-    max-width: 1320px;
-    padding: 1rem 4.2rem 3rem;
-}
-h1, h2, h3, h4 {
-    font-family: 'Manrope', sans-serif !important;
-    letter-spacing: -0.045em;
-}
-p { line-height: 1.7; }
-a { text-decoration: none; }
-
-/* Navegación */
-.navbar {
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; }
+.wrap { width: min(1180px, 90%); margin: auto; }
+section { scroll-margin-top: 28px; }
+nav {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
     gap: 20px;
-    padding: 12px 0 24px;
-    border-bottom: 1px solid #E7EDF3;
-    margin-bottom: 28px;
 }
 .brand {
-    font-family: 'Manrope', sans-serif;
-    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-weight: 800;
-    letter-spacing: -1px;
-    color: var(--navy);
+    font-size: 25px;
+    letter-spacing: 5px;
 }
-.brand span { color: var(--cyan); }
+.logo-mark {
+    color: var(--blue2);
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    margin-right: 5px;
+}
+.logo-dot { color: var(--blue2); }
+.logo-img { max-width: 170px; max-height: 52px; object-fit: contain; }
 .navlinks {
     display: flex;
-    gap: 23px;
     flex-wrap: wrap;
     align-items: center;
+    gap: 25px;
+    font-size: 14px;
+    color: #DCE7F6;
 }
-.navlinks a {
-    color: var(--navy);
-    font-size: .87rem;
-    font-weight: 600;
-}
-.navlinks a:hover { color: #009DA8; }
+.navlinks a:hover { color: var(--blue2); }
 .nav-cta {
-    background: var(--navy);
-    color: white !important;
-    padding: 11px 17px;
+    background: var(--blue);
     border-radius: 6px;
+    padding: 12px 17px;
+    color: white !important;
 }
-
-/* Hero */
 .hero {
+    min-height: 610px;
     position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 80px 0;
+}
+.hero-glow {
+    position: absolute;
+    right: -170px;
+    top: 5px;
+    width: 600px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(0,91,255,.2), transparent 68%);
+    pointer-events: none;
+}
+.hero-content { position: relative; z-index: 2; max-width: 780px; }
+.eyebrow {
+    color: var(--blue2);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 23px;
+}
+h1, h2, h3, p { margin-top: 0; }
+h1 {
+    font-size: clamp(46px, 7.3vw, 88px);
+    line-height: .99;
+    letter-spacing: -5px;
+    margin-bottom: 26px;
+    font-weight: 800;
+}
+h1 span, .blue { color: var(--blue2); }
+.hero p {
+    font-size: 18px;
+    line-height: 1.8;
+    max-width: 590px;
+    color: #C1D1E4;
+}
+.actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 32px; }
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 22px;
+    border-radius: 7px;
+    background: var(--blue);
+    color: white;
+    font-weight: 700;
+    border: 1px solid var(--blue);
+    transition: .2s ease;
+}
+.btn:hover { transform: translateY(-3px); background: #218CFF; }
+.btn.outline { background: transparent; border-color: #36506E; }
+.btn.outline:hover { border-color: var(--blue2); }
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 46px;
+    font-size: 12px;
+    letter-spacing: .5px;
+    color: #B5C8DF;
+}
+.hero-meta b { color: var(--blue2); }
+.section { padding: 78px 0; border-top: 1px solid #101E31; }
+.section-head { max-width: 760px; margin-bottom: 35px; }
+.section-head h2 {
+    font-size: clamp(32px, 4.5vw, 54px);
+    line-height: 1.08;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+}
+.section-head p, .body-copy {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.85;
+}
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; align-items: center; }
+.card {
+    border: 1px solid var(--border);
+    background: linear-gradient(145deg, #0A172A, #050B14);
+    padding: 27px;
+    min-height: 220px;
+    border-radius: 10px;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.card:hover {
+    transform: translateY(-6px);
+    border-color: #1269C5;
+    box-shadow: 0 12px 38px #0066ff15;
+}
+.num { color: var(--blue2); font-size: 12px; font-weight: 800; margin-bottom: 26px; }
+.card h3 { font-size: 21px; letter-spacing: -.5px; margin-bottom: 12px; }
+.card p { color: var(--muted); line-height: 1.75; font-size: 14px; margin-bottom: 0; }
+.band {
+    border: 1px solid #16345A;
+    background: linear-gradient(100deg, #0A1A30, #07101D);
+    border-radius: 10px;
+    padding: 26px 30px;
+    margin-top: 25px;
+    line-height: 1.7;
+}
+.band strong { color: var(--white); }
+.band span { color: var(--muted); }
+.project-image {
+    width: 100%;
+    height: 350px;
+    border: 1px solid #1B3555;
+    border-radius: 11px;
     overflow: hidden;
     background:
-      radial-gradient(circle at 87% 22%, rgba(22,193,200,.30), transparent 29%),
-      radial-gradient(circle at 10% 100%, rgba(25,111,164,.35), transparent 36%),
-      linear-gradient(120deg, #071D34, #103858 70%, #0B334C);
-    color: white;
-    border-radius: 18px;
-    padding: clamp(36px, 6vw, 82px);
-    min-height: 450px;
+      radial-gradient(ellipse at 80% 10%, #103F70, transparent 45%),
+      linear-gradient(145deg, #0A1930, #030812);
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    animation: rise .8s ease both;
 }
-.hero:after {
-    content: "";
-    position: absolute;
-    width: 290px;
-    height: 290px;
-    right: -85px;
-    bottom: -140px;
-    border: 1px solid rgba(255,255,255,.22);
-    border-radius: 50%;
-    box-shadow: 0 0 0 32px rgba(255,255,255,.035),
-                0 0 0 65px rgba(255,255,255,.025);
-}
-.eyebrow {
-    text-transform: uppercase;
-    letter-spacing: .16em;
-    font-size: .76rem;
-    font-weight: 800;
-    color: #009DA8;
-    margin-bottom: 14px;
-}
-.hero .eyebrow { color: #66F0ED; }
-.hero h1 {
-    color: white;
-    font-size: clamp(2.8rem, 6.2vw, 5.5rem);
-    line-height: .99;
-    max-width: 850px;
-    margin: 0 0 24px;
-    font-weight: 800;
-}
-.hero h1 span { color: #5CE4E1; }
-.hero p {
-    color: #D9E9F4;
-    max-width: 650px;
-    font-size: 1.12rem;
-    margin: 0 0 28px;
-}
-.hero-actions { display:flex; flex-wrap:wrap; gap:12px; }
-.hero-button {
-    display:inline-block;
-    background:var(--cyan);
-    color:var(--navy) !important;
-    font-weight:800;
-    padding:14px 22px;
-    border-radius:6px;
-    transition:transform .2s, background .2s;
-}
-.hero-button:hover { transform:translateY(-3px); background:#6CE6E4; }
-.hero-button.secondary {
-    background:transparent;
-    color:white !important;
-    border:1px solid rgba(255,255,255,.45);
-}
-.hero-foot {
-    display:flex;
-    gap:26px;
-    flex-wrap:wrap;
-    margin-top:38px;
-    color:#D5E7F2;
-    font-size:.85rem;
-}
-.hero-foot b { color:#66F0ED; }
-
-/* Secciones */
-.section-heading { padding: 66px 0 26px; }
-.section-heading h2 {
-    font-size: clamp(2rem, 4.4vw, 3.7rem);
-    line-height: 1.06;
-    color: var(--navy);
-    max-width: 850px;
-    margin: 0 0 14px;
-}
-.section-desc {
-    color: var(--muted);
-    font-size: 1.04rem;
-    max-width: 760px;
-    margin: 0;
-}
-.service-card {
-    height: 100%;
-    min-height: 225px;
-    box-sizing: border-box;
-    background: #F5F8FB;
-    border: 1px solid #E6EDF3;
-    border-radius: 12px;
+.project-image img { width: 100%; height: 100%; object-fit: cover; }
+.project-image.placeholder span {
     padding: 25px;
-    transition: transform .25s, box-shadow .25s, border .25s;
-}
-.service-card:hover {
-    transform: translateY(-7px);
-    border-color: #8BE5E4;
-    box-shadow: 0 16px 36px rgba(9,34,61,.09);
-}
-.service-number {
-    color: #009DA8;
+    text-align: center;
+    color: #4AA8FF;
+    font-size: 21px;
     font-weight: 800;
-    font-size: .82rem;
-    margin-bottom: 26px;
+    letter-spacing: 1px;
 }
-.service-card h3 {
-    color: var(--navy);
-    font-size: 1.25rem;
-    margin: 0 0 10px;
+.project-copy h2 { font-size: 38px; line-height: 1.12; letter-spacing: -1.5px; }
+.project-copy p { color: var(--muted); line-height: 1.8; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.tag {
+    border: 1px solid #173D66;
+    background: #091D35;
+    color: #72B9FF;
+    padding: 7px 10px;
+    border-radius: 4px;
+    font-size: 12px;
 }
-.service-card p { color: var(--muted); font-size: .94rem; }
-.card-line {
-    width: 42px; height: 3px;
-    background: var(--cyan);
-    margin-top: 20px;
-    border-radius: 5px;
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.step {
+    border-top: 2px solid var(--blue);
+    padding-top: 20px;
 }
-.pill {
-    display:inline-block;
-    padding:7px 11px;
-    border-radius:5px;
-    background:rgba(22,193,200,.13);
-    color:#007C87;
-    font-size:.8rem;
-    font-weight:700;
-    margin:0 5px 8px 0;
-}
-
-/* Banda y casos */
-.trust-band {
-    margin-top: 50px;
-    background: var(--cyan-light);
+.step b { display: block; color: var(--blue2); font-size: 13px; margin-bottom: 12px; }
+.step h3 { font-size: 18px; margin-bottom: 9px; }
+.step p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.cta {
+    padding: 45px;
+    border: 1px solid #17467B;
     border-radius: 12px;
-    padding: 25px 30px;
-    color: var(--navy);
+    background:
+      radial-gradient(ellipse at 95% 5%, #0B3770, transparent 40%),
+      linear-gradient(125deg, #08182D, #030812);
 }
-.trust-band strong { font-size:1.1rem; }
-.case-card {
-    background: var(--navy);
+.cta h2 { font-size: clamp(35px, 5vw, 57px); line-height: 1.06; letter-spacing: -2px; margin-bottom: 18px; }
+.cta p { color: var(--muted); line-height: 1.8; max-width: 640px; }
+.contact-form {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.contact-form label { display: block; font-size: 12px; color: #B9CBE0; margin-bottom: 7px; }
+.contact-form input, .contact-form select, .contact-form textarea {
+    display: block;
+    width: 100%;
+    background: #030B16;
     color: white;
-    border-radius: 12px;
-    overflow: hidden;
-    height: 100%;
+    border: 1px solid #223A56;
+    border-radius: 5px;
+    padding: 13px;
+    outline: none;
 }
-.case-copy { padding: 24px; }
-.case-card h3 { color:white; font-size:1.45rem; margin:0 0 10px; }
-.case-card p { color:#D2E2EE; font-size:.94rem; }
-.case-label {
-    font-size:.73rem; text-transform:uppercase; letter-spacing:.12em;
-    color:#64E4E1; font-weight:800; margin-bottom:12px;
+.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus {
+    border-color: var(--blue);
 }
-.case-placeholder {
-    height: 185px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:20px;
-    color:#6CE6E4;
-    font-size:1.4rem;
-    font-family:'Manrope', sans-serif;
-    font-weight:800;
-    background:radial-gradient(circle at 80% 20%, #1A6680, transparent 40%),
-               linear-gradient(135deg,#0A2039,#16425D);
+.contact-form textarea { min-height: 110px; resize: vertical; }
+.full { grid-column: 1 / -1; }
+.contact-form button { cursor: pointer; }
+footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 0 35px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    color: #8398B1;
+    font-size: 12px;
 }
+footer b { color: white; letter-spacing: 2px; }
 
-/* CTA y pie */
-.cta-panel {
-    background: linear-gradient(120deg, #0A2039, #10415B);
-    color:white;
-    border-radius:16px;
-    padding:clamp(30px,5vw,60px);
-    margin-top:68px;
+/* Rastro del cursor: N azul con brillo */
+#trail-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: hidden;
 }
-.cta-panel h2 {
-    color:white;
-    font-size:clamp(2rem,4vw,3.5rem);
-    margin:0 0 15px;
-    line-height:1.08;
+.trail-n {
+    position: absolute;
+    width: 23px;
+    height: 27px;
+    color: #087BFF;
+    font-family: Arial, sans-serif;
+    font-weight: 900;
+    font-size: 25px;
+    line-height: 27px;
+    text-align: center;
+    text-shadow: 0 0 7px #087BFF, 0 0 17px #005BFF, 0 0 30px #005BFF;
+    transform: translate(-50%, -50%) scale(.8) rotate(-8deg);
+    opacity: 0;
+    will-change: transform, opacity;
 }
-.cta-panel p { color:#D5E7F2; max-width:690px; }
-.footer {
-    border-top:1px solid #E6EDF3;
-    padding:24px 0 10px;
-    margin-top:45px;
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:space-between;
-    gap:16px;
-    color:#718196;
-    font-size:.83rem;
+@media (hover: none), (pointer: coarse) {
+    #trail-layer { display: none; }
 }
-.footer strong { color:var(--navy); }
-div[data-testid="stForm"] {
-    border:1px solid #E1EAF1;
-    border-radius:12px;
-    padding:22px;
-    background:#F8FAFC;
-}
-div.stButton > button, div[data-testid="stFormSubmitButton"] button {
-    background:var(--cyan);
-    color:var(--navy);
-    border:0;
-    border-radius:6px;
-    font-weight:800;
-    min-height:44px;
-}
-div.stButton > button:hover, div[data-testid="stFormSubmitButton"] button:hover {
-    background:#62E1DF;
-    color:var(--navy);
-    border:0;
-}
-div[data-testid="stImage"] img { border-radius:10px; }
-@keyframes rise {
-    from { opacity:0; transform:translateY(16px); }
-    to { opacity:1; transform:translateY(0); }
-}
-@media (max-width: 800px) {
-    .block-container { padding: .7rem 1rem 2rem; }
-    .navbar { align-items:flex-start; flex-direction:column; }
-    .navlinks { gap:12px; }
-    .hero { min-height:0; padding:34px 24px; }
-    .hero h1 { font-size:2.8rem; }
-    .section-heading { padding-top:45px; }
+@media (max-width: 760px) {
+    .wrap { width: 91%; }
+    nav { align-items: flex-start; flex-direction: column; }
+    .navlinks { gap: 15px; }
+    .hero { min-height: auto; padding: 75px 0; }
+    h1 { letter-spacing: -2.5px; }
+    .grid3, .grid2, .steps { grid-template-columns: 1fr; }
+    .project-image { height: 260px; }
+    .project-copy h2 { font-size: 31px; }
+    .section { padding: 55px 0; }
+    .cta { padding: 25px; }
+    .contact-form { grid-template-columns: 1fr; }
+    .full { grid-column: auto; }
 }
 </style>
-""", unsafe_allow_html=True)
+</head>
+<body>
 
-# --------------------------------------------------
-# BARRA DE NAVEGACIÓN
-# --------------------------------------------------
-st.markdown("""
-<div class="navbar">
-  <a class="brand" href="#inicio">NEXO<span>✦</span></a>
-  <div class="navlinks">
-    <a href="#servicios">Servicios</a>
-    <a href="#experiencia">Experiencia</a>
-    <a href="#proyectos">Proyectos</a>
-    <a href="#roothua">Soluciones integrales</a>
-    <a class="nav-cta" href="#contacto">Hablemos ↗</a>
-  </div>
+<div id="trail-layer" aria-hidden="true"></div>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#inicio">__LOGO__</a>
+    <div class="navlinks">
+      <a href="#inicio">Inicio</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#roothua">Roothúa</a>
+      <a class="nav-cta" href="#contacto">Hablemos ↗</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="inicio">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="eyebrow">Nexo Promocional · Soluciones para empresas</div>
+      <h1>Tu proyecto.<br>Muchas ideas.<br><span>Un solo Nexo.</span></h1>
+      <p>Integramos productos promocionales, impresión, diseño y soluciones digitales para que tu marca llegue más lejos, con menos complicaciones.</p>
+      <div class="actions">
+        <a class="btn" href="#contacto">Cuéntanos tu proyecto ↗</a>
+        <a class="btn outline" href="#servicios">Explorar servicios ↓</a>
+      </div>
+      <div class="hero-meta">
+        <span><b>01</b> · Atención cercana</span>
+        <span><b>02</b> · Soluciones integrales</span>
+        <span><b>03</b> · De la idea a la entrega</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="eyebrow">Una solución integral</div>
+      <h2>Todo conectado.<br><span class="blue">Todo más fácil.</span></h2>
+      <p>Un solo punto de contacto para coordinar materiales, comunicación y recursos que tu empresa necesita para destacar.</p>
+    </div>
+    <div class="grid3">
+      <article class="card"><div class="num">01 / PLANEA</div><h3>Escuchamos tu necesidad</h3><p>Entendemos tu objetivo, tu público y los materiales que necesitas.</p></article>
+      <article class="card"><div class="num">02 / INTEGRAMOS</div><h3>Coordinamos soluciones</h3><p>Conectamos diseño, producción e impresión para resolver el proyecto.</p></article>
+      <article class="card"><div class="num">03 / ENTREGAMOS</div><h3>Acompañamos el proceso</h3><p>Damos seguimiento a los detalles de los productos y servicios acordados.</p></article>
+    </div>
+    <div class="band"><strong>Menos proveedores que coordinar. Más claridad en cada proyecto.</strong><br><span>Desde una pieza promocional hasta los materiales para un evento o una campaña.</span></div>
+  </section>
+
+  <section class="section" id="servicios">
+    <div class="section-head">
+      <div class="eyebrow">Qué hacemos</div>
+      <h2>Todo lo que tu marca necesita para <span class="blue">hacerse notar.</span></h2>
+      <p>Una oferta flexible para empresas, asociaciones, instituciones, eventos y comercios.</p>
+    </div>
+    <div class="grid3">
+      <article class="card"><div class="num">01</div><h3>Productos promocionales</h3><p>Tazas, plumas, bolsas, pines, gafetes y artículos personalizados.</p></article>
+      <article class="card"><div class="num">02</div><h3>Impresión y gran formato</h3><p>Lonas, banners, roll-ups, muros gráficos, viniles, carteles y señalización.</p></article>
+      <article class="card"><div class="num">03</div><h3>Papelería y comunicación</h3><p>Folletos, volantes, dípticos, trípticos, carpetas, invitaciones y materiales institucionales.</p></article>
+      <article class="card"><div class="num">04</div><h3>Diseño gráfico</h3><p>Materiales para eventos, campañas, presentaciones y comunicación de marca.</p></article>
+      <article class="card"><div class="num">05</div><h3>Eventos y acreditaciones</h3><p>Boletos digitales, gafetes, códigos QR y materiales de apoyo para registro.</p></article>
+      <article class="card"><div class="num">06</div><h3>Soluciones digitales</h3><p>Páginas informativas, formularios y herramientas sencillas para compartir información.</p></article>
+    </div>
+  </section>
+
+  <section class="section" id="proyectos">
+    <div class="section-head">
+      <div class="eyebrow">Nuestra experiencia</div>
+      <h2>Ideas que pasan del diseño <span class="blue">a la realidad.</span></h2>
+      <p>Convertimos necesidades concretas en materiales útiles, coordinados y alineados con cada proyecto.</p>
+    </div>
+    <div class="grid2">
+      __AMH_IMAGE__
+      <div class="project-copy">
+        <div class="eyebrow">Caso de trabajo · AMH</div>
+        <h2>Materiales que trabajan en conjunto.</h2>
+        <p>Para la Asociación Mexicana de Hepatología se coordinaron materiales promocionales y gráficos para actividades y eventos.</p>
+        <div class="tags"><span class="tag">Tazas y plumas</span><span class="tag">Gafetes</span><span class="tag">Roll-up</span><span class="tag">Muro gráfico 3×3</span><span class="tag">Material digital</span></div>
+      </div>
+    </div>
+    <div style="height:45px"></div>
+    <div class="grid2">
+      <div class="project-copy">
+        <div class="eyebrow">Producción y comunicación</div>
+        <h2>Una marca consistente en cada detalle.</h2>
+        <p>Integramos distintas piezas para que los materiales de comunicación mantengan una presentación coherente con el propósito de cada cliente.</p>
+        <div class="tags"><span class="tag">Planeación</span><span class="tag">Producción</span><span class="tag">Impresión</span><span class="tag">Entrega</span></div>
+      </div>
+      __PRODUCTS_IMAGE__
+    </div>
+  </section>
+
+  <section class="section" id="roothua">
+    <div class="grid2">
+      __ROOTHUA_IMAGE__
+      <div class="project-copy">
+        <div class="eyebrow">Roothúa · Mobiliario y proyectos</div>
+        <h2>Más capacidades.<br><span class="blue">Más posibilidades.</span></h2>
+        <p>Una línea complementaria de soluciones de mobiliario, fabricación sobre medida, tapicería y renovación de espacios.</p>
+        <div class="tags"><span class="tag">Mobiliario</span><span class="tag">Fabricación sobre medida</span><span class="tag">Tapicería</span><span class="tag">Renovación</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="eyebrow">Cómo trabajamos</div>
+      <h2>Un proceso claro,<br><span class="blue">de principio a fin.</span></h2>
+      <p>Queremos que solicitar tus materiales sea más sencillo.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><b>01 / CONTACTO</b><h3>Nos contactas</h3><p>Cuéntanos qué necesitas.</p></div>
+      <div class="step"><b>02 / PLANEACIÓN</b><h3>Preparamos</h3><p>Definimos materiales y alcance.</p></div>
+      <div class="step"><b>03 / PROPUESTA</b><h3>Cotizamos</h3><p>Revisamos opciones y tiempos.</p></div>
+      <div class="step"><b>04 / SEGUIMIENTO</b><h3>Coordinamos</h3><p>Damos seguimiento al pedido.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="contacto">
+    <div class="cta">
+      <div class="eyebrow">Hagamos equipo</div>
+      <h2>¿Qué necesitas<br><span class="blue">resolver hoy?</span></h2>
+      <p>Cuéntanos tu idea. Te ayudaremos a identificar los materiales y servicios que pueden hacer realidad tu proyecto.</p>
+
+      <form class="contact-form" id="contact-form">
+        <div><label for="nombre">Nombre *</label><input id="nombre" name="nombre" required placeholder="Tu nombre"></div>
+        <div><label for="empresa">Empresa u organización</label><input id="empresa" name="empresa" placeholder="Nombre de tu organización"></div>
+        <div><label for="correo">Correo electrónico *</label><input id="correo" name="correo" type="email" required placeholder="tu@correo.com"></div>
+        <div><label for="tipo">Servicio que necesitas</label>
+          <select id="tipo" name="tipo">
+            <option>Productos promocionales</option>
+            <option>Impresión y gran formato</option>
+            <option>Diseño y comunicación</option>
+            <option>Materiales para eventos</option>
+            <option>Soluciones digitales</option>
+            <option>Mobiliario o renovación</option>
+            <option>Proyecto integral</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="full"><label for="mensaje">Cuéntanos sobre tu proyecto *</label><textarea id="mensaje" name="mensaje" required placeholder="¿Qué necesitas, para cuándo y en qué cantidad?"></textarea></div>
+        <div class="full"><button class="btn" type="submit">Preparar solicitud ↗</button></div>
+      </form>
+      <p id="form-result" aria-live="polite" style="margin-top:16px"></p>
+      <div id="contact-links" style="margin-top:16px"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div><b>NEXO PROMOCIONAL</b><br>Ideas que conectan. Soluciones que avanzan.</div>
+    <div>Productos · Impresión · Diseño · Soluciones digitales</div>
+    <div>© Nexo Promocional</div>
+  </footer>
 </div>
-""", unsafe_allow_html=True)
 
-# --------------------------------------------------
-# HERO
-# --------------------------------------------------
-st.markdown("""
-<div id="inicio" class="hero">
-  <div class="eyebrow">Nexo Promocional · Soluciones para empresas</div>
-  <h1>Tu proyecto.<br>Muchas ideas.<br><span>Un solo Nexo.</span></h1>
-  <p>
-    Integramos productos promocionales, impresión, diseño y soluciones
-    digitales para que tu marca llegue más lejos, con menos complicaciones.
-  </p>
-  <div class="hero-actions">
-    <a class="hero-button" href="#contacto">Cuéntanos tu proyecto ↗</a>
-    <a class="hero-button secondary" href="#servicios">Explorar servicios ↓</a>
-  </div>
-  <div class="hero-foot">
-    <span><b>01</b> · Atención cercana</span>
-    <span><b>02</b> · Soluciones integrales</span>
-    <span><b>03</b> · De la idea a la entrega</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+<script>
+/* =================================================
+   ESTELA INTERACTIVA DE LA N DE NEXO
+   ================================================= */
+(function () {
+    const layer = document.getElementById("trail-layer");
+    if (!layer || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
-# --------------------------------------------------
-# PROPUESTA DE VALOR
-# --------------------------------------------------
-seccion(
-    "Todo conectado. Todo más fácil.",
-    "Un solo punto de contacto para coordinar materiales, comunicación "
-    "y recursos que tu empresa necesita para destacar.",
-    "Una solución integral"
+    const total = 11;
+    const items = [];
+    for (let i = 0; i < total; i++) {
+        const el = document.createElement("span");
+        el.className = "trail-n";
+        el.textContent = "N";
+        layer.appendChild(el);
+        items.push({el: el, x: -100, y: -100});
+    }
+
+    let mouseX = -100, mouseY = -100;
+    let visible = false;
+    let lastX = -100, lastY = -100;
+
+    window.addEventListener("mousemove", function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        visible = true;
+    }, {passive: true});
+
+    window.addEventListener("mouseout", function (e) {
+        if (!e.relatedTarget) visible = false;
+    });
+
+    window.addEventListener("blur", function () { visible = false; });
+    window.addEventListener("focus", function () { visible = true; });
+
+    function animate() {
+        let targetX = mouseX;
+        let targetY = mouseY;
+
+        items.forEach(function (item, i) {
+            const lag = 0.29 - i * 0.014;
+            item.x += (targetX - item.x) * lag;
+            item.y += (targetY - item.y) * lag;
+
+            const progress = 1 - i / total;
+            const scale = 0.45 + progress * 0.55;
+            const opacity = visible ? Math.pow(progress, 1.45) * 0.9 : 0;
+
+            item.el.style.left = item.x + "px";
+            item.el.style.top = item.y + "px";
+            item.el.style.opacity = opacity;
+            item.el.style.transform =
+                "translate(-50%,-50%) scale(" + scale + ") rotate(-8deg)";
+            item.el.style.filter = "blur(" + (1 - progress) * 1.3 + "px)";
+
+            targetX = item.x + (mouseX - item.x) * 0.12;
+            targetY = item.y + (mouseY - item.y) * 0.12;
+        });
+
+        lastX = mouseX;
+        lastY = mouseY;
+        requestAnimationFrame(animate);
+    }
+    animate();
+})();
+
+/* =================================================
+   CONTACTO
+   ================================================= */
+(function () {
+    const form = document.getElementById("contact-form");
+    const result = document.getElementById("form-result");
+    const links = document.getElementById("contact-links");
+
+    const emailDestino = "__EMAIL__";
+    const whatsappDestino = "__WHATSAPP__";
+
+    if (whatsappDestino) {
+        const a = document.createElement("a");
+        a.className = "btn outline";
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.href = "https://wa.me/" + whatsappDestino;
+        a.textContent = "También puedes escribirnos por WhatsApp";
+        links.appendChild(a);
+    }
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const data = new FormData(form);
+        const nombre = data.get("nombre").trim();
+        const correo = data.get("correo").trim();
+        const empresa = data.get("empresa").trim();
+        const tipo = data.get("tipo");
+        const mensaje = data.get("mensaje").trim();
+
+        const asunto = "Solicitud de cotización Nexo Promocional: " + tipo;
+        const cuerpo =
+            "Nombre: " + nombre + "\n" +
+            "Empresa: " + empresa + "\n" +
+            "Correo: " + correo + "\n" +
+            "Servicio: " + tipo + "\n\n" +
+            "Proyecto:\n" + mensaje;
+
+        if (emailDestino) {
+            window.location.href =
+                "mailto:" + emailDestino +
+                "?subject=" + encodeURIComponent(asunto) +
+                "&body=" + encodeURIComponent(cuerpo);
+            result.textContent = "Se abrirá tu aplicación de correo para que puedas revisar y enviar la solicitud.";
+        } else {
+            const blob = new Blob([asunto + "\n\n" + cuerpo], {type: "text/plain;charset=utf-8"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "solicitud-nexo.txt";
+            a.click();
+            URL.revokeObjectURL(url);
+            result.textContent = "Descargamos tu solicitud. Configura el correo comercial para habilitar el envío directo.";
+        }
+    });
+})();
+</script>
+</body>
+</html>
+"""
+
+# Sustituir los espacios reservados por contenido seguro
+pagina = pagina.replace("__LOGO__", logo_html)
+pagina = pagina.replace("__AMH_IMAGE__", amh_imagen)
+pagina = pagina.replace("__PRODUCTS_IMAGE__", productos_imagen)
+pagina = pagina.replace("__ROOTHUA_IMAGE__", roothua_imagen)
+pagina = pagina.replace("__EMAIL__", CORREO.strip())
+pagina = pagina.replace("__WHATSAPP__", "".join(c for c in WHATSAPP if c.isdigit()))
+
+# El contenido completo se encuentra dentro del mismo marco para que
+# el cursor y su estela compartan el mismo contexto del navegador.
+components.html(
+    pagina,
+    height=5200,
+    scrolling=False,
 )
-
-c1, c2, c3 = st.columns(3, gap="medium")
-with c1:
-    tarjeta("01 / PLANEA", "Escuchamos tu necesidad",
-            "Entendemos tu objetivo, el público y los materiales que necesitas.")
-with c2:
-    tarjeta("02 / INTEGRAMOS", "Coordinamos las soluciones",
-            "Conectamos diseño, producción e impresión para resolver el proyecto.")
-with c3:
-    tarjeta("03 / ENTREGAMOS", "Acompañamos el proceso",
-            "Damos seguimiento a los detalles para ayudarte a llegar a tiempo.")
-
-st.markdown("""
-<div class="trust-band">
-  <strong>Menos proveedores que coordinar. Más claridad en cada proyecto.</strong>
-  <div style="margin-top:7px;color:#49657B">
-    Desde una pieza promocional hasta los materiales para un evento o una campaña.
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-# --------------------------------------------------
-# SERVICIOS
-# --------------------------------------------------
-st.markdown('<div id="servicios"></div>', unsafe_allow_html=True)
-seccion(
-    "Todo lo que tu marca necesita para hacerse notar.",
-    "Una oferta flexible para empresas, asociaciones, instituciones, eventos y comercios.",
-    "Qué hacemos"
-)
-
-servicios = [
-    ("01", "Productos promocionales",
-     "Tazas, plumas, bolsas, pines, gafetes y artículos personalizados."),
-    ("02", "Impresión y gran formato",
-     "Lonas, banners, roll-ups, muros gráficos, viniles, carteles y señalización."),
-    ("03", "Papelería y comunicación",
-     "Folletos, volantes, dípticos, trípticos, carpetas, invitaciones y materiales institucionales."),
-    ("04", "Diseño gráfico",
-     "Diseño de materiales para eventos, campañas, presentaciones y comunicación de marca."),
-    ("05", "Eventos y acreditaciones",
-     "Boletos digitales, gafetes, códigos QR y materiales de apoyo para registro."),
-    ("06", "Soluciones digitales",
-     "Páginas informativas, formularios y herramientas sencillas para compartir información.")
-]
-for inicio in range(0, len(servicios), 3):
-    columnas = st.columns(3, gap="medium")
-    for columna, servicio in zip(columnas, servicios[inicio:inicio+3]):
-        with columna:
-            tarjeta(*servicio)
-
-# --------------------------------------------------
-# EXPERIENCIA / PORTAFOLIO
-# --------------------------------------------------
-st.markdown('<div id="experiencia"></div>', unsafe_allow_html=True)
-seccion(
-    "Ideas que pasan del diseño a la realidad.",
-    "Trabajamos para convertir necesidades concretas en materiales útiles, "
-    "bien coordinados y alineados con cada proyecto.",
-    "Nuestra experiencia"
-)
-
-amh_img = asset("amh-entrega-01.jpg")
-prod_img = asset("productos-promocionales.jpg")
-logo_amh = asset("logo-amh.png")
-
-c1, c2 = st.columns([1.05, 1], gap="large")
-with c1:
-    if amh_img:
-        st.image(amh_img, use_container_width=True)
-    else:
-        st.markdown("""
-        <div class="case-placeholder">
-          AMH<br>Productos y materiales para eventos
-        </div>""", unsafe_allow_html=True)
-with c2:
-    st.markdown("""
-    <div style="padding:8px 0 18px">
-      <div class="eyebrow">Caso de trabajo · AMH</div>
-      <h2 style="font-size:2.25rem;color:#09223D;line-height:1.1">
-        Materiales que trabajan en conjunto.
-      </h2>
-      <p style="color:#64758A">
-        Para la Asociación Mexicana de Hepatología se coordinaron materiales
-        promocionales y gráficos para actividades y eventos.
-      </p>
-      <span class="pill">Tazas y plumas</span>
-      <span class="pill">Gafetes</span>
-      <span class="pill">Roll-up</span>
-      <span class="pill">Muro gráfico 3×3</span>
-      <span class="pill">Material digital</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.divider()
-
-c1, c2 = st.columns([1, 1.05], gap="large")
-with c1:
-    st.markdown("""
-    <div style="padding:8px 0 18px">
-      <div class="eyebrow">De la idea a la entrega</div>
-      <h2 style="font-size:2.25rem;color:#09223D;line-height:1.1">
-        Una marca consistente en cada detalle.
-      </h2>
-      <p style="color:#64758A">
-        Integramos diferentes piezas para que los materiales de comunicación
-        mantengan una presentación coherente con el propósito de cada cliente.
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("""
-    <div style="padding:17px 0;border-top:1px solid #E6EDF3">
-      <strong style="color:#09223D">01 / Planeación</strong>
-      <div style="color:#64758A;margin-top:5px">Definimos qué necesita el proyecto.</div>
-    </div>
-    <div style="padding:17px 0;border-top:1px solid #E6EDF3">
-      <strong style="color:#09223D">02 / Producción</strong>
-      <div style="color:#64758A;margin-top:5px">Coordinamos materiales y acabados.</div>
-    </div>
-    <div style="padding:17px 0;border-top:1px solid #E6EDF3">
-      <strong style="color:#09223D">03 / Entrega</strong>
-      <div style="color:#64758A;margin-top:5px">Damos seguimiento a los productos acordados.</div>
-    </div>
-    """, unsafe_allow_html=True)
-with c2:
-    if prod_img:
-        st.image(prod_img, use_container_width=True)
-    else:
-        st.markdown("""
-        <div class="case-placeholder" style="height:330px">
-          NEXO PROMOCIONAL<br>Productos · Impresión · Diseño
-        </div>""", unsafe_allow_html=True)
-
-# --------------------------------------------------
-# SOLUCIONES INTEGRALES / ROOTHÚA
-# --------------------------------------------------
-st.markdown('<div id="roothua"></div>', unsafe_allow_html=True)
-seccion(
-    "Más capacidades. Más posibilidades.",
-    "Además de los materiales promocionales, podemos conectar proyectos con "
-    "soluciones complementarias de diseño, fabricación y renovación.",
-    "Ecosistema de soluciones"
-)
-
-roothua_img = asset("roothua-proyecto.jpg")
-c1, c2 = st.columns([1, 1.1], gap="large")
-with c1:
-    if roothua_img:
-        st.image(roothua_img, use_container_width=True)
-    else:
-        st.markdown("""
-        <div class="case-placeholder" style="height:260px">
-          ROOTHÚA<br>Mobiliario · Diseño · Renovación
-        </div>""", unsafe_allow_html=True)
-with c2:
-    st.markdown("""
-    <div style="padding:10px 0">
-      <div class="eyebrow">Roothúa · Mobiliario y proyectos</div>
-      <h2 style="font-size:2.2rem;color:#09223D;line-height:1.1">
-        Soluciones que van más allá de lo promocional.
-      </h2>
-      <p style="color:#64758A">
-        La experiencia vinculada con Roothúa complementa las capacidades
-        del proyecto con mobiliario, fabricación sobre medida, tapicería
-        y renovación de espacios.
-      </p>
-      <span class="pill">Mobiliario</span>
-      <span class="pill">Fabricación sobre medida</span>
-      <span class="pill">Tapicería</span>
-      <span class="pill">Renovación</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-# --------------------------------------------------
-# FORMA DE TRABAJO
-# --------------------------------------------------
-seccion(
-    "Un proceso claro, de principio a fin.",
-    "Queremos que pedir tus materiales sea más sencillo.",
-    "Cómo trabajamos"
-)
-c1, c2, c3, c4 = st.columns(4, gap="medium")
-pasos = [
-    ("01", "Nos contactas", "Cuéntanos qué necesitas."),
-    ("02", "Preparamos", "Definimos materiales y alcance."),
-    ("03", "Cotizamos", "Revisamos opciones y tiempos."),
-    ("04", "Coordinamos", "Damos seguimiento al pedido.")
-]
-for col, paso in zip([c1, c2, c3, c4], pasos):
-    with col:
-        tarjeta(*paso)
-
-# --------------------------------------------------
-# CONTACTO
-# --------------------------------------------------
-st.markdown('<div id="contacto"></div>', unsafe_allow_html=True)
-st.markdown("""
-<div class="cta-panel">
-  <div class="eyebrow">Hagamos equipo</div>
-  <h2>¿Qué necesitas<br>resolver hoy?</h2>
-  <p>
-    Cuéntanos tu idea. Te ayudaremos a identificar los materiales y servicios
-    que pueden hacer realidad tu proyecto.
-  </p>
-</div>
-""", unsafe_allow_html=True)
-
-c1, c2 = st.columns([1, 1.2], gap="large")
-with c1:
-    st.markdown("""
-    <div style="padding-top:18px">
-      <h3 style="color:#09223D;font-size:1.5rem">Hablemos de tu proyecto.</h3>
-      <p style="color:#64758A">
-        Comparte tus datos y una breve descripción de lo que buscas.
-        Podrás revisar la información antes de enviarla por el medio de contacto disponible.
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
-    if CORREO:
-        st.markdown(f"✉️ **Correo:** [{html.escape(CORREO)}](mailto:{html.escape(CORREO)})")
-    if TELEFONO:
-        st.markdown(f"☎️ **Teléfono:** {html.escape(TELEFONO)}")
-    if WHATSAPP:
-        st.link_button("Escribir por WhatsApp", f"https://wa.me/{WHATSAPP}")
-
-with c2:
-    with st.form("contacto_nexo"):
-        nombre = st.text_input("Nombre")
-        empresa = st.text_input("Empresa u organización")
-        correo_cliente = st.text_input("Correo electrónico")
-        tipo = st.selectbox(
-            "¿Qué necesitas?",
-            [
-                "Productos promocionales",
-                "Impresión y gran formato",
-                "Diseño y comunicación",
-                "Materiales para eventos",
-                "Soluciones digitales",
-                "Mobiliario o renovación",
-                "Proyecto integral",
-                "Otro"
-            ]
-        )
-        mensaje = st.text_area("Cuéntanos sobre tu proyecto")
-        enviar = st.form_submit_button("Preparar solicitud")
-
-    if enviar:
-        if not nombre.strip() or not correo_cliente.strip() or not mensaje.strip():
-            st.warning("Completa tu nombre, correo y descripción del proyecto.")
-        else:
-            asunto = f"Cotización Nexo Promocional - {tipo}"
-            cuerpo = (
-                f"Nombre: {nombre}\n"
-                f"Empresa: {empresa}\n"
-                f"Correo: {correo_cliente}\n"
-                f"Servicio: {tipo}\n\n"
-                f"Proyecto:\n{mensaje}"
-            )
-            st.success("Solicitud preparada. Puedes copiarla y enviarla al correo comercial.")
-            st.code(f"ASUNTO: {asunto}\n\n{cuerpo}", language="text")
-            st.caption(
-                "Este formulario no envía ni almacena automáticamente los datos. "
-                "Para recibir solicitudes directamente, hay que conectar un servicio de envío."
-            )
-
-# --------------------------------------------------
-# PIE
-# --------------------------------------------------
-st.markdown("""
-<div class="footer">
-  <div><strong>NEXO PROMOCIONAL</strong><br>Ideas que conectan. Soluciones que avanzan.</div>
-  <div>Productos · Impresión · Diseño · Soluciones digitales</div>
-  <div>© Nexo Promocional</div>
-</div>
-""", unsafe_allow_html=True)
