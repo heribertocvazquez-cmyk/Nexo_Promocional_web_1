@@ -66,7 +66,7 @@ productos_imagen = bloque_imagen(
     "productos-promocionales.jpg", "project-image", "Productos promocionales"
 )
 roothua_imagen = bloque_imagen(
-    "roothua-proyecto.jpg", "project-image", "Roothúa · Mobiliario y renovación"
+  "roothua-proyecto.jpg", "project-image", "Roothúa · Publicidad y contenido digital"
 )
 
 # ==================================================
@@ -80,15 +80,15 @@ pagina = r"""
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root {
-    --bg: #030812;
-    --bg2: #071326;
-    --panel: #091629;
+  --bg: #F5F8FC;
+  --bg2: #FFFFFF;
+  --panel: #FFFFFF;
     --blue: #087BFF;
-    --blue2: #36A0FF;
-    --cyan: #62DDFE;
-    --white: #F4F8FF;
-    --muted: #A5B6CC;
-    --border: #172A43;
+  --blue2: #075EAD;
+  --cyan: #007F9E;
+  --white: #14263D;
+  --muted: #596B80;
+  --border: #DCE4EE;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -134,7 +134,7 @@ nav {
     align-items: center;
     gap: 25px;
     font-size: 14px;
-    color: #DCE7F6;
+    color: #4B5D72;
 }
 .navlinks a:hover { color: var(--blue2); }
 .nav-cta {
@@ -157,7 +157,7 @@ nav {
     top: 5px;
     width: 600px;
     height: 500px;
-    background: radial-gradient(ellipse, rgba(0,91,255,.2), transparent 68%);
+    background: radial-gradient(ellipse, rgba(0,91,255,.10), transparent 68%);
     pointer-events: none;
 }
 .hero-content { position: relative; z-index: 2; max-width: 780px; }
@@ -182,7 +182,7 @@ h1 span, .blue { color: var(--blue2); }
     font-size: 18px;
     line-height: 1.8;
     max-width: 590px;
-    color: #C1D1E4;
+    color: #52657B;
 }
 .actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 32px; }
 .btn {
@@ -198,7 +198,7 @@ h1 span, .blue { color: var(--blue2); }
     transition: .2s ease;
 }
 .btn:hover { transform: translateY(-3px); background: #218CFF; }
-.btn.outline { background: transparent; border-color: #36506E; }
+.btn.outline { background: transparent; border-color: #AAB9C9; color: var(--white); }
 .btn.outline:hover { border-color: var(--blue2); }
 .hero-meta {
     display: flex;
@@ -207,10 +207,10 @@ h1 span, .blue { color: var(--blue2); }
     margin-top: 46px;
     font-size: 12px;
     letter-spacing: .5px;
-    color: #B5C8DF;
+    color: #596B80;
 }
 .hero-meta b { color: var(--blue2); }
-.section { padding: 78px 0; border-top: 1px solid #101E31; }
+.section { padding: 78px 0; border-top: 1px solid #E2E8F0; }
 .section-head { max-width: 760px; margin-bottom: 35px; }
 .section-head h2 {
     font-size: clamp(32px, 4.5vw, 54px);
@@ -227,7 +227,7 @@ h1 span, .blue { color: var(--blue2); }
 .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; align-items: center; }
 .card {
     border: 1px solid var(--border);
-    background: linear-gradient(145deg, #0A172A, #050B14);
+    background: linear-gradient(145deg, #FFFFFF, #F8FAFC);
     padding: 27px;
     min-height: 220px;
     border-radius: 10px;
@@ -236,14 +236,14 @@ h1 span, .blue { color: var(--blue2); }
 .card:hover {
     transform: translateY(-6px);
     border-color: #1269C5;
-    box-shadow: 0 12px 38px #0066ff15;
+    box-shadow: 0 12px 38px #17365D12;
 }
 .num { color: var(--blue2); font-size: 12px; font-weight: 800; margin-bottom: 26px; }
 .card h3 { font-size: 21px; letter-spacing: -.5px; margin-bottom: 12px; }
 .card p { color: var(--muted); line-height: 1.75; font-size: 14px; margin-bottom: 0; }
 .band {
-    border: 1px solid #16345A;
-    background: linear-gradient(100deg, #0A1A30, #07101D);
+    border: 1px solid #D5E2F0;
+    background: linear-gradient(100deg, #F1F7FE, #FFFFFF);
     border-radius: 10px;
     padding: 26px 30px;
     margin-top: 25px;
@@ -254,12 +254,12 @@ h1 span, .blue { color: var(--blue2); }
 .project-image {
     width: 100%;
     height: 350px;
-    border: 1px solid #1B3555;
+    border: 1px solid #D8E2ED;
     border-radius: 11px;
     overflow: hidden;
     background:
-      radial-gradient(ellipse at 80% 10%, #103F70, transparent 45%),
-      linear-gradient(145deg, #0A1930, #030812);
+      radial-gradient(ellipse at 80% 10%, #E1F0FF, transparent 45%),
+      linear-gradient(145deg, #F3F8FD, #EAF1F8);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -268,7 +268,7 @@ h1 span, .blue { color: var(--blue2); }
 .project-image.placeholder span {
     padding: 25px;
     text-align: center;
-    color: #4AA8FF;
+    color: #075EAD;
     font-size: 21px;
     font-weight: 800;
     letter-spacing: 1px;
@@ -277,9 +277,9 @@ h1 span, .blue { color: var(--blue2); }
 .project-copy p { color: var(--muted); line-height: 1.8; }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .tag {
-    border: 1px solid #173D66;
-    background: #091D35;
-    color: #72B9FF;
+    border: 1px solid #C9DDF1;
+    background: #F0F6FC;
+    color: #075EAD;
     padding: 7px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -294,11 +294,11 @@ h1 span, .blue { color: var(--blue2); }
 .step p { color: var(--muted); font-size: 14px; line-height: 1.7; }
 .cta {
     padding: 45px;
-    border: 1px solid #17467B;
+    border: 1px solid #C9DDF1;
     border-radius: 12px;
     background:
-      radial-gradient(ellipse at 95% 5%, #0B3770, transparent 40%),
-      linear-gradient(125deg, #08182D, #030812);
+      radial-gradient(ellipse at 95% 5%, #E5F2FF, transparent 40%),
+      linear-gradient(125deg, #F3F8FD, #FFFFFF);
 }
 .cta h2 { font-size: clamp(35px, 5vw, 57px); line-height: 1.06; letter-spacing: -2px; margin-bottom: 18px; }
 .cta p { color: var(--muted); line-height: 1.8; max-width: 640px; }
@@ -308,13 +308,13 @@ h1 span, .blue { color: var(--blue2); }
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
 }
-.contact-form label { display: block; font-size: 12px; color: #B9CBE0; margin-bottom: 7px; }
+.contact-form label { display: block; font-size: 12px; color: #43566D; margin-bottom: 7px; }
 .contact-form input, .contact-form select, .contact-form textarea {
     display: block;
     width: 100%;
-    background: #030B16;
-    color: white;
-    border: 1px solid #223A56;
+    background: #FFFFFF;
+    color: #14263D;
+    border: 1px solid #CBD6E2;
     border-radius: 5px;
     padding: 13px;
     outline: none;
@@ -332,10 +332,16 @@ footer {
     justify-content: space-between;
     gap: 15px;
     flex-wrap: wrap;
-    color: #8398B1;
+    color: #65768A;
     font-size: 12px;
 }
-footer b { color: white; letter-spacing: 2px; }
+footer b { color: var(--white); letter-spacing: 2px; }
+.upcoming {
+  border-left: 3px solid var(--blue);
+  padding: 5px 0 5px 22px;
+  max-width: 760px;
+}
+.upcoming p { color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
 
 /* Rastro del cursor: N azul con brillo */
 #trail-layer {
@@ -390,7 +396,7 @@ footer b { color: white; letter-spacing: 2px; }
       <a href="#inicio">Inicio</a>
       <a href="#servicios">Servicios</a>
       <a href="#proyectos">Proyectos</a>
-      <a href="#roothua">Roothúa</a>
+      <a href="#proximos">Próximos proyectos</a>
       <a class="nav-cta" href="#contacto">Hablemos ↗</a>
     </div>
   </nav>
@@ -452,7 +458,7 @@ footer b { color: white; letter-spacing: 2px; }
     <div class="grid2">
       __AMH_IMAGE__
       <div class="project-copy">
-        <div class="eyebrow">Caso de trabajo · AMH</div>
+        <div class="eyebrow">Caso de éxito · AMH</div>
         <h2>Materiales que trabajan en conjunto.</h2>
         <p>Para la Asociación Mexicana de Hepatología se coordinaron materiales promocionales y gráficos para actividades y eventos.</p>
         <div class="tags"><span class="tag">Tazas y plumas</span><span class="tag">Gafetes</span><span class="tag">Roll-up</span><span class="tag">Muro gráfico 3×3</span><span class="tag">Material digital</span></div>
@@ -470,14 +476,25 @@ footer b { color: white; letter-spacing: 2px; }
     </div>
   </section>
 
+  <section class="section" id="proximos">
+    <div class="section-head">
+      <div class="eyebrow">Lo que viene</div>
+      <h2>Próximos <span class="blue">proyectos.</span></h2>
+    </div>
+    <div class="upcoming">
+      <p>Estamos preparando nuevas colaboraciones y soluciones. Muy pronto compartiremos más detalles; mientras tanto, cuéntanos qué proyecto te gustaría hacer realidad.</p>
+      <a class="btn" href="#contacto">Platiquemos de tu proyecto ↗</a>
+    </div>
+  </section>
+
   <section class="section" id="roothua">
     <div class="grid2">
       __ROOTHUA_IMAGE__
       <div class="project-copy">
-        <div class="eyebrow">Roothúa · Mobiliario y proyectos</div>
-        <h2>Más capacidades.<br><span class="blue">Más posibilidades.</span></h2>
-        <p>Una línea complementaria de soluciones de mobiliario, fabricación sobre medida, tapicería y renovación de espacios.</p>
-        <div class="tags"><span class="tag">Mobiliario</span><span class="tag">Fabricación sobre medida</span><span class="tag">Tapicería</span><span class="tag">Renovación</span></div>
+        <div class="eyebrow">Caso de éxito · Roothúa</div>
+        <h2>Publicidad y contenido para conectar con su audiencia.</h2>
+        <p>Desarrollamos publicidad, manejo de redes sociales, creación de contenido y edición de imágenes para fortalecer la comunicación de Roothúa.</p>
+        <div class="tags"><span class="tag">Publicidad</span><span class="tag">Manejo de redes sociales</span><span class="tag">Creación de contenido</span><span class="tag">Edición de imágenes</span></div>
       </div>
     </div>
   </section>
@@ -672,6 +689,6 @@ pagina = pagina.replace("__WHATSAPP__", "".join(c for c in WHATSAPP if c.isdigit
 # el cursor y su estela compartan el mismo contexto del navegador.
 components.html(
     pagina,
-    height=5200,
+    height=5600,
     scrolling=False,
 )
