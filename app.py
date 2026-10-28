@@ -1,9 +1,9 @@
+
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
 import base64
 import html
-import json
 
 # ==================================================
 # CONFIGURACIÓN
@@ -18,18 +18,18 @@ st.set_page_config(
 BASE_DIR = Path(__file__).parent
 ASSETS = BASE_DIR / "assets"
 
-CORREO = ""       # Ejemplo: ventas@tudominio.com
-WHATSAPP = ""     # Ejemplo: 525512345678, solo dígitos
+CORREO = ""
+WHATSAPP = ""
 
 
 # ==================================================
-# UTILIDADES DE IMÁGENES
+# FUNCIONES DE IMÁGENES Y LOGOTIPOS
 # ==================================================
 def imagen_base64(nombre):
-    """Carga un archivo de assets y lo convierte en una URL incrustada."""
+    """Carga una imagen local de assets y la convierte en una URI."""
     ruta = ASSETS / nombre
 
-    if not ruta.is_file():
+    if not ruta.exists():
         return ""
 
     extension = ruta.suffix.lower()
@@ -47,46 +47,32 @@ def imagen_base64(nombre):
 
 def bloque_imagen(nombre, clase, etiqueta):
     src = imagen_base64(nombre)
-    etiqueta_segura = html.escape(etiqueta)
 
     if src:
         return (
             f'<div class="{clase}">'
-            f'<img src="{src}" alt="{etiqueta_segura}">'
-            '</div>'
+            f'<img src="{src}" alt="{html.escape(etiqueta)}">'
+            "</div>"
         )
 
     return (
         f'<div class="{clase} placeholder">'
-        f'<span>{etiqueta_segura}</span>'
-        '</div>'
+        f"<span>{html.escape(etiqueta)}</span>"
+        "</div>"
     )
 
 
-# ==================================================
-# LOGOTIPO PRINCIPAL
-# ==================================================
 logo_path = ASSETS / "nexo-horizontal.svg"
 
-if logo_path.is_file():
-    logo_html = logo_path.read_text(encoding="utf-8")
-
-    if "<svg " in logo_html:
-        logo_html = logo_html.replace(
-            "<svg ",
-            '<svg class="logo-img" ',
-            1,
-        )
-else:
-    logo_html = (
-        '<span class="logo-mark">N</span>'
-        '<span>NEXO<span class="logo-dot">.</span></span>'
+logo_html = (
+    logo_path.read_text(encoding="utf-8").replace(
+        "<svg ", '<svg class="logo-img" ', 1
     )
+    if logo_path.is_file()
+    else '<span class="logo-mark">N</span>'
+         '<span>NEXO<span class="logo-dot">.</span></span>'
+)
 
-
-# ==================================================
-# IMÁGENES DE PROYECTOS
-# ==================================================
 amh_imagen = bloque_imagen(
     "amh-entrega-01.jpg",
     "project-image",
@@ -106,20 +92,16 @@ roothua_imagen = bloque_imagen(
 )
 
 
-# ==================================================
-# LOGOTIPO DE AMH
-# ==================================================
 def logo_amh_asset():
-    """Muestra el logotipo de AMH si existe en assets."""
-
+    """Carga el logotipo de AMH desde assets/logo-hepatologia.svg."""
     archivo = ASSETS / "logo-hepatologia.svg"
 
-    if not archivo.is_file():
+    if not archivo.exists():
         return (
             '<div class="client-logo-card client-logo-feature">'
             '<span class="client-logo-mark">AMH</span>'
             '<small>Asociación Mexicana de Hepatología</small>'
-            '</div>'
+            "</div>"
         )
 
     src = imagen_base64("logo-hepatologia.svg")
@@ -128,11 +110,25 @@ def logo_amh_asset():
         '<div class="client-logo-card client-logo-feature">'
         f'<img class="client-logo-svg" src="{src}" '
         'alt="Asociación Mexicana de Hepatología">'
-        '</div>'
+        "</div>"
     )
 
 
-amh_cliente_logo = logo_amh_asset()
+def logo_roothua_asset():
+    """Carga el logotipo de Roothúa desde assets/roothua_logo.svg."""
+    src = imagen_base64("roothua_logo.svg")
+
+    if not src:
+        return ""
+
+    return (
+        '<div class="client-logo-card client-logo-feature">'
+        f'<img class="client-logo-svg" src="{src}" alt="Roothúa">'
+        "</div>"
+    )
+
+
+clientes_logos = logo_amh_asset() + logo_roothua_asset()
 
 
 # ==================================================
@@ -156,7 +152,6 @@ pagina = r"""
     --white: #14263D;
     --muted: #596B80;
     --border: #DCE4EE;
-    --navy: #09223D;
 }
 
 * {
@@ -242,10 +237,6 @@ nav {
     color: #4B5D72;
 }
 
-.navlinks a {
-    transition: color .2s ease;
-}
-
 .navlinks a:hover {
     color: var(--blue2);
 }
@@ -258,47 +249,102 @@ nav {
 }
 
 /* ==================================================
-   CORTINA AZUL
+   TRANSICIÓN DE CORTINAS AZULES
    ================================================== */
-#nexo-curtain {
+#curtain-transition {
     position: fixed;
     inset: 0;
-    z-index: 2147483647;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    z-index: 100000;
     pointer-events: none;
+    visibility: hidden;
+    overflow: hidden;
+    display: flex;
+}
+
+#curtain-transition.active {
+    visibility: visible;
+}
+
+.curtain-panel {
+    position: absolute;
+    top: 0;
+    width: 51%;
+    height: 100%;
     background: linear-gradient(
-        115deg,
-        #06172D 0%,
-        #09223D 48%,
+        135deg,
+        #064A91 0%,
+        #075EAD 45%,
         #087BFF 100%
     );
-    transform: translateX(-105%);
+    transition: transform 850ms cubic-bezier(.76, 0, .24, 1);
     will-change: transform;
 }
 
+.curtain-panel.left {
+    left: 0;
+    transform: translateX(-102%);
+    border-right: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.curtain-panel.right {
+    right: 0;
+    transform: translateX(102%);
+    border-left: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Cierre: las cortinas avanzan hacia el centro */
+#curtain-transition.closing .curtain-panel.left,
+#curtain-transition.opening .curtain-panel.left {
+    transform: translateX(0);
+}
+
+#curtain-transition.closing .curtain-panel.right,
+#curtain-transition.opening .curtain-panel.right {
+    transform: translateX(0);
+}
+
+/* Marca central */
 .curtain-brand {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.85);
     color: #FFFFFF;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(22px, 4vw, 38px);
+    font-size: clamp(24px, 4vw, 42px);
     font-weight: 900;
-    letter-spacing: 5px;
+    letter-spacing: 7px;
     opacity: 0;
-    transform: translateY(12px);
-    transition:
-        opacity .25s ease,
-        transform .25s ease;
+    transition: opacity 350ms ease, transform 350ms ease;
+    white-space: nowrap;
 }
 
-.curtain-brand span {
-    color: #65B4FF;
-}
-
-.curtain-brand.visible {
+#curtain-transition.closing .curtain-brand {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, -50%) scale(1);
+    transition-delay: 300ms;
+}
+
+/* Apertura: cada cortina se retira hacia su lado */
+#curtain-transition.opening .curtain-panel.left {
+    transform: translateX(-102%);
+}
+
+#curtain-transition.opening .curtain-panel.right {
+    transform: translateX(102%);
+}
+
+#curtain-transition.opening .curtain-brand {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.08);
+    transition-delay: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .curtain-panel,
+    .curtain-brand {
+        transition-duration: 150ms;
+    }
 }
 
 /* ==================================================
@@ -382,10 +428,7 @@ h1 span, .blue {
     color: white;
     font-weight: 700;
     border: 1px solid var(--blue);
-    transition:
-        transform .2s ease,
-        background .2s ease,
-        border-color .2s ease;
+    transition: .2s ease;
 }
 
 .btn:hover {
@@ -418,7 +461,7 @@ h1 span, .blue {
 }
 
 /* ==================================================
-   SECCIONES
+   SECCIONES Y TARJETAS
    ================================================== */
 .section {
     padding: 78px 0;
@@ -463,10 +506,7 @@ h1 span, .blue {
     padding: 27px;
     min-height: 220px;
     border-radius: 10px;
-    transition:
-        transform .25s,
-        border-color .25s,
-        box-shadow .25s;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
 }
 
 .card:hover {
@@ -675,7 +715,7 @@ h1 span, .blue {
 }
 
 /* ==================================================
-   CLIENTES
+   LOGOTIPOS DE CLIENTES
    ================================================== */
 .client-strip {
     margin-top: 22px;
@@ -696,7 +736,7 @@ h1 span, .blue {
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 22px;
+    gap: 30px;
     width: 100%;
     min-height: 100px;
     padding: 10px 0;
@@ -707,67 +747,49 @@ h1 span, .blue {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 300px;
+    width: 250px;
     min-width: 0;
-    min-height: 0;
-    padding: 16px 22px;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    background: #FFFFFF;
-    box-shadow: 0 8px 24px rgba(10, 40, 80, 0.06);
+    padding: 10px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .client-logo-feature {
-    width: 300px;
-    min-width: 0;
+    width: 250px;
     min-height: 0;
-    padding: 18px 22px;
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
+    padding: 10px;
+    background: transparent;
+    border: none;
 }
 
 .client-logo-svg {
     display: block;
     width: 100%;
-    max-width: 230px;
-    max-height: 100px;
+    max-width: 200px;
+    max-height: 90px;
     height: auto;
     object-fit: contain;
+    background: transparent;
 }
 
 .client-logo-mark {
-    display: block;
     color: var(--blue2);
     font-size: 35px;
     font-weight: 900;
-    text-align: center;
-    letter-spacing: 2px;
 }
 
 .client-logo-card small {
     display: block;
-    margin-top: 5px;
     color: var(--muted);
     font-size: 11px;
     text-align: center;
 }
 
 /* ==================================================
-   PRÓXIMOS PROYECTOS Y PIE
+   PIE DE PÁGINA
    ================================================== */
-.upcoming {
-    border-left: 3px solid var(--blue);
-    padding: 5px 0 5px 22px;
-    max-width: 760px;
-}
-
-.upcoming p {
-    color: var(--muted);
-    line-height: 1.8;
-    margin-bottom: 20px;
-}
-
 footer {
     border-top: 1px solid var(--border);
     padding: 28px 0 35px;
@@ -784,8 +806,20 @@ footer b {
     letter-spacing: 2px;
 }
 
+.upcoming {
+    border-left: 3px solid var(--blue);
+    padding: 5px 0 5px 22px;
+    max-width: 760px;
+}
+
+.upcoming p {
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
 /* ==================================================
-   ESTELA DEL LOGOTIPO
+   EFECTO DE RASTRO DE LA N
    ================================================== */
 #trail-layer {
     position: fixed;
@@ -814,25 +848,15 @@ footer b {
     will-change: transform, opacity;
 }
 
-/* ==================================================
-   RESPONSIVE
-   ================================================== */
 @media (hover: none), (pointer: coarse) {
     #trail-layer {
         display: none;
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-    }
-}
-
+/* ==================================================
+   DISEÑO RESPONSIVO
+   ================================================== */
 @media (max-width: 760px) {
     .wrap {
         width: 91%;
@@ -886,9 +910,8 @@ footer b {
         grid-column: auto;
     }
 
-    .client-logo-card,
-    .client-logo-feature {
-        width: min(100%, 300px);
+    .client-logo-card {
+        width: 220px;
     }
 }
 </style>
@@ -898,8 +921,18 @@ footer b {
 
 <div id="trail-layer" aria-hidden="true"></div>
 
+<!-- Cortinas de transición -->
+<div id="curtain-transition" aria-hidden="true">
+    <div class="curtain-panel left"></div>
+    <div class="curtain-panel right"></div>
+    <div class="curtain-brand">
+        NEXO<span style="color:#8FD8FF">.</span>
+    </div>
+</div>
+
 <div class="wrap">
 
+    <!-- NAVEGACIÓN -->
     <nav>
         <a class="brand" href="#inicio">__LOGO__</a>
 
@@ -912,6 +945,7 @@ footer b {
         </div>
     </nav>
 
+    <!-- INICIO -->
     <section class="hero" id="inicio">
         <div class="hero-glow"></div>
 
@@ -949,6 +983,7 @@ footer b {
         </div>
     </section>
 
+    <!-- PROPUESTA DE VALOR -->
     <section class="section" id="enfoque">
         <div class="section-head">
             <div class="eyebrow">Una solución integral</div>
@@ -978,8 +1013,8 @@ footer b {
                 <div class="num">02 / INTEGRAMOS</div>
                 <h3>Coordinamos soluciones</h3>
                 <p>
-                    Conectamos diseño, producción e impresión para
-                    resolver el proyecto.
+                    Conectamos diseño, producción e impresión para resolver
+                    el proyecto.
                 </p>
             </article>
 
@@ -987,8 +1022,8 @@ footer b {
                 <div class="num">03 / ENTREGAMOS</div>
                 <h3>Acompañamos el proceso</h3>
                 <p>
-                    Damos seguimiento a los detalles de los productos
-                    y servicios acordados.
+                    Damos seguimiento a los detalles de los productos y
+                    servicios acordados.
                 </p>
             </article>
         </div>
@@ -999,12 +1034,13 @@ footer b {
             </strong>
             <br>
             <span>
-                Desde una pieza promocional hasta los materiales para
-                un evento o una campaña.
+                Desde una pieza promocional hasta los materiales para un
+                evento o una campaña.
             </span>
         </div>
     </section>
 
+    <!-- SERVICIOS -->
     <section class="section" id="servicios">
         <div class="section-head">
             <div class="eyebrow">Qué hacemos</div>
@@ -1077,6 +1113,7 @@ footer b {
         </div>
     </section>
 
+    <!-- PROYECTOS -->
     <section class="section" id="proyectos">
         <div class="section-head">
             <div class="eyebrow">Nuestra experiencia</div>
@@ -1101,9 +1138,9 @@ footer b {
                 <h2>Materiales que trabajan en conjunto.</h2>
 
                 <p>
-                    Para la Asociación Mexicana de Hepatología se
-                    coordinaron materiales promocionales y gráficos
-                    para actividades y eventos.
+                    Para la Asociación Mexicana de Hepatología se coordinaron
+                    materiales promocionales y gráficos para actividades
+                    y eventos.
                 </p>
 
                 <div class="tags">
@@ -1125,9 +1162,9 @@ footer b {
                 <h2>Una marca consistente en cada detalle.</h2>
 
                 <p>
-                    Integramos distintas piezas para que los materiales
-                    de comunicación mantengan una presentación coherente
-                    con el propósito de cada cliente.
+                    Integramos distintas piezas para que los materiales de
+                    comunicación mantengan una presentación coherente con
+                    el propósito de cada cliente.
                 </p>
 
                 <div class="tags">
@@ -1142,6 +1179,7 @@ footer b {
         </div>
     </section>
 
+    <!-- PRÓXIMOS PROYECTOS -->
     <section class="section" id="proximos">
         <div class="section-head">
             <div class="eyebrow">Lo que viene</div>
@@ -1161,6 +1199,7 @@ footer b {
         </div>
     </section>
 
+    <!-- ROOTHÚA -->
     <section class="section" id="roothua">
         <div class="grid2">
             __ROOTHUA_IMAGE__
@@ -1168,7 +1207,9 @@ footer b {
             <div class="project-copy">
                 <div class="eyebrow">Caso de éxito · Roothúa</div>
 
-                <h2>Publicidad y contenido para conectar con su audiencia.</h2>
+                <h2>
+                    Publicidad y contenido para conectar con su audiencia.
+                </h2>
 
                 <p>
                     Desarrollamos publicidad, manejo de redes sociales,
@@ -1186,6 +1227,7 @@ footer b {
         </div>
     </section>
 
+    <!-- PROCESO -->
     <section class="section" id="proceso">
         <div class="section-head">
             <div class="eyebrow">Cómo trabajamos</div>
@@ -1225,6 +1267,7 @@ footer b {
         </div>
     </section>
 
+    <!-- CONTACTO -->
     <section class="section" id="contacto">
         <div class="cta">
             <div class="eyebrow">Hagamos equipo</div>
@@ -1235,8 +1278,8 @@ footer b {
             </h2>
 
             <p>
-                Cuéntanos tu idea. Te ayudaremos a identificar los
-                materiales y servicios que pueden hacer realidad tu proyecto.
+                Cuéntanos tu idea. Te ayudaremos a identificar los materiales
+                y servicios que pueden hacer realidad tu proyecto.
             </p>
 
             <form class="contact-form" id="contact-form">
@@ -1301,12 +1344,7 @@ footer b {
                 </div>
             </form>
 
-            <p
-                id="form-result"
-                aria-live="polite"
-                style="margin-top:16px"
-            ></p>
-
+            <p id="form-result" aria-live="polite" style="margin-top:16px"></p>
             <div id="contact-links" style="margin-top:16px"></div>
         </div>
 
@@ -1314,11 +1352,12 @@ footer b {
             <div class="eyebrow">Clientes</div>
 
             <div class="client-logo-row">
-                __CLIENT_LOGO__
+                __CLIENT_LOGOS__
             </div>
         </div>
     </section>
 
+    <!-- PIE DE PÁGINA -->
     <footer>
         <div>
             <b>NEXO PROMOCIONAL</b><br>
@@ -1331,138 +1370,20 @@ footer b {
 
         <div>© Nexo Promocional</div>
     </footer>
-
 </div>
 
 <script>
 /* ==================================================
-   CORTINA AZUL Y NAVEGACIÓN
+   NAVEGACIÓN CON CORTINAS
+   Este controlador reemplaza el desplazamiento anterior
+   para evitar que dos eventos muevan la página a la vez.
    ================================================== */
 (function () {
-    const curtain = document.createElement("div");
-    curtain.id = "nexo-curtain";
-    curtain.setAttribute("aria-hidden", "true");
-    curtain.innerHTML =
-        '<div class="curtain-brand">NEXO<span>.</span> PROMOCIONAL</div>';
+    const curtain = document.getElementById("curtain-transition");
 
-    document.body.appendChild(curtain);
+    if (!curtain) return;
 
-    const brand = curtain.querySelector(".curtain-brand");
-    let busy = false;
-
-    function wait(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    function scrollToSection(target) {
-        const frame = window.frameElement;
-
-        if (!frame) {
-            target.scrollIntoView({
-                behavior: "auto",
-                block: "start"
-            });
-            return;
-        }
-
-        let parentWindow;
-        let parentDocument;
-
-        try {
-            parentWindow = window.parent;
-            parentDocument = frame.ownerDocument;
-
-            // Comprobar que el documento padre es accesible.
-            void parentDocument.body;
-        } catch (error) {
-            target.scrollIntoView({
-                behavior: "auto",
-                block: "start"
-            });
-            return;
-        }
-
-        const targetTop =
-            frame.getBoundingClientRect().top +
-            target.getBoundingClientRect().top;
-
-        let container = frame.parentElement;
-
-        while (
-            container &&
-            container !== parentDocument.body
-        ) {
-            const overflowY =
-                parentWindow.getComputedStyle(container).overflowY;
-
-            if (
-                ["auto", "scroll", "overlay"].includes(overflowY) &&
-                container.scrollHeight > container.clientHeight
-            ) {
-                break;
-            }
-
-            container = container.parentElement;
-        }
-
-        if (
-            container &&
-            container !== parentDocument.body
-        ) {
-            container.scrollTo({
-                top:
-                    container.scrollTop +
-                    targetTop -
-                    container.getBoundingClientRect().top -
-                    24,
-                behavior: "auto"
-            });
-        } else {
-            const root =
-                parentDocument.scrollingElement ||
-                parentDocument.documentElement;
-
-            parentWindow.scrollTo({
-                top: root.scrollTop + targetTop - 24,
-                behavior: "auto"
-            });
-        }
-    }
-
-    async function navigate(target) {
-        if (busy) return;
-        busy = true;
-
-        curtain.style.transition = "none";
-        curtain.style.transform = "translateX(-105%)";
-        brand.classList.remove("visible");
-
-        // Preparar el inicio de la animación.
-        void curtain.offsetWidth;
-
-        curtain.style.transition =
-            "transform .42s cubic-bezier(.76,0,.24,1)";
-        curtain.style.transform = "translateX(0)";
-
-        await wait(320);
-        brand.classList.add("visible");
-
-        await wait(180);
-
-        scrollToSection(target);
-
-        await wait(100);
-
-        brand.classList.remove("visible");
-        curtain.style.transform = "translateX(105%)";
-
-        await wait(450);
-
-        curtain.style.transition = "none";
-        curtain.style.transform = "translateX(-105%)";
-
-        busy = false;
-    }
+    let transitioning = false;
 
     document.addEventListener("click", function (event) {
         const link = event.target instanceof Element
@@ -1477,13 +1398,95 @@ footer b {
         if (!target) return;
 
         event.preventDefault();
-        navigate(target);
+
+        if (transitioning) return;
+
+        transitioning = true;
+
+        // Cierra las cortinas desde los extremos.
+        curtain.classList.remove("opening");
+        curtain.classList.add("active", "closing");
+
+        // Espera a que las cortinas cubran la pantalla.
+        window.setTimeout(function () {
+            const frame = window.frameElement;
+
+            if (!frame) {
+                target.scrollIntoView({
+                    behavior: "auto",
+                    block: "start"
+                });
+            } else {
+                const parentWindow = window.parent;
+                const parentDocument = frame.ownerDocument;
+
+                const targetTop =
+                    frame.getBoundingClientRect().top +
+                    target.getBoundingClientRect().top;
+
+                let container = frame.parentElement;
+
+                while (
+                    container &&
+                    container !== parentDocument.body
+                ) {
+                    const overflowY =
+                        parentWindow.getComputedStyle(container).overflowY;
+
+                    if (
+                        ["auto", "scroll", "overlay"].includes(overflowY) &&
+                        container.scrollHeight > container.clientHeight
+                    ) {
+                        break;
+                    }
+
+                    container = container.parentElement;
+                }
+
+                if (
+                    container &&
+                    container !== parentDocument.body
+                ) {
+                    container.scrollTo({
+                        top:
+                            container.scrollTop +
+                            targetTop -
+                            container.getBoundingClientRect().top -
+                            24,
+                        behavior: "auto"
+                    });
+                } else {
+                    const scrollRoot =
+                        parentDocument.scrollingElement ||
+                        parentDocument.documentElement;
+
+                    parentWindow.scrollTo({
+                        top: scrollRoot.scrollTop + targetTop - 24,
+                        behavior: "auto"
+                    });
+                }
+            }
+
+            // Pausa con la pantalla cubierta antes de abrir.
+            window.setTimeout(function () {
+                curtain.classList.remove("closing");
+                curtain.classList.add("opening");
+
+                // Espera a que termine la apertura.
+                window.setTimeout(function () {
+                    curtain.classList.remove("active", "opening");
+                    transitioning = false;
+                }, 900);
+
+            }, 350);
+
+        }, 950);
     }, true);
 })();
 
 
 /* ==================================================
-   ESTELA DE LETRAS N
+   RASTRO DEL LOGOTIPO N
    ================================================== */
 (function () {
     const layer = document.getElementById("trail-layer");
@@ -1515,14 +1518,14 @@ footer b {
     let mouseY = -100;
     let visible = false;
 
-    window.addEventListener("mousemove", function (event) {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
+    window.addEventListener("mousemove", function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
         visible = true;
     }, { passive: true });
 
-    window.addEventListener("mouseout", function (event) {
-        if (!event.relatedTarget) visible = false;
+    window.addEventListener("mouseout", function (e) {
+        if (!e.relatedTarget) visible = false;
     });
 
     window.addEventListener("blur", function () {
@@ -1552,6 +1555,7 @@ footer b {
             item.el.style.left = item.x + "px";
             item.el.style.top = item.y + "px";
             item.el.style.opacity = opacity;
+
             item.el.style.transform =
                 "translate(-50%,-50%) scale(" +
                 scale +
@@ -1579,8 +1583,8 @@ footer b {
     const result = document.getElementById("form-result");
     const links = document.getElementById("contact-links");
 
-    const emailDestino = __EMAIL_JSON__;
-    const whatsappDestino = __WHATSAPP_JSON__;
+    const emailDestino = "__EMAIL__";
+    const whatsappDestino = "__WHATSAPP__";
 
     if (whatsappDestino) {
         const a = document.createElement("a");
@@ -1594,18 +1598,19 @@ footer b {
         links.appendChild(a);
     }
 
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
 
         const data = new FormData(form);
 
-        const nombre = String(data.get("nombre") || "").trim();
-        const correo = String(data.get("correo") || "").trim();
-        const empresa = String(data.get("empresa") || "").trim();
-        const tipo = String(data.get("tipo") || "");
-        const mensaje = String(data.get("mensaje") || "").trim();
+        const nombre = data.get("nombre").trim();
+        const correo = data.get("correo").trim();
+        const empresa = data.get("empresa").trim();
+        const tipo = data.get("tipo");
+        const mensaje = data.get("mensaje").trim();
 
-        const asunto = "Solicitud de cotización Nexo Promocional: " + tipo;
+        const asunto =
+            "Solicitud de cotización Nexo Promocional: " + tipo;
 
         const cuerpo =
             "Nombre: " + nombre + "\n" +
@@ -1633,9 +1638,7 @@ footer b {
 
             a.href = url;
             a.download = "solicitud-nexo.txt";
-            document.body.appendChild(a);
             a.click();
-            a.remove();
 
             URL.revokeObjectURL(url);
 
@@ -1652,27 +1655,22 @@ footer b {
 
 
 # ==================================================
-# INSERTAR CONTENIDO DINÁMICO
+# REEMPLAZO DE ELEMENTOS DINÁMICOS
 # ==================================================
 pagina = pagina.replace("__LOGO__", logo_html)
 pagina = pagina.replace("__AMH_IMAGE__", amh_imagen)
 pagina = pagina.replace("__PRODUCTS_IMAGE__", productos_imagen)
 pagina = pagina.replace("__ROOTHUA_IMAGE__", roothua_imagen)
-pagina = pagina.replace("__CLIENT_LOGO__", amh_cliente_logo)
-
-# json.dumps evita errores si el correo o WhatsApp contienen caracteres especiales.
+pagina = pagina.replace("__EMAIL__", html.escape(CORREO.strip(), quote=True))
 pagina = pagina.replace(
-    "__EMAIL_JSON__",
-    json.dumps(CORREO.strip()),
+    "__WHATSAPP__",
+    "".join(c for c in WHATSAPP if c.isdigit())
 )
-pagina = pagina.replace(
-    "__WHATSAPP_JSON__",
-    json.dumps("".join(c for c in WHATSAPP if c.isdigit())),
-)
+pagina = pagina.replace("__CLIENT_LOGOS__", clientes_logos)
 
 
 # ==================================================
-# MOSTRAR PÁGINA
+# RENDERIZADO EN STREAMLIT
 # ==================================================
 components.html(
     pagina,
