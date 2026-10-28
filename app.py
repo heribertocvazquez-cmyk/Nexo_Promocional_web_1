@@ -109,8 +109,10 @@ def logo_roothua_asset():
 
     return ""
 
-amh_cliente_logo = {logo_amh_asset()}
+<div class="client-logo-row">
+    {logo_amh_asset()}
     {logo_cliente_nuevo_asset()}
+</div>
 
 # ==================================================
 # PÁGINA COMPLETA
