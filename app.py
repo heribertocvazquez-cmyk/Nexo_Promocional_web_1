@@ -73,39 +73,27 @@ roothua_imagen = bloque_imagen(
   "roothua-proyecto.jpg", "project-image", "Roothúa · Publicidad y contenido digital"
 )
 
-# Logo del cliente para la sección final
-amh_cliente_logo = ""
-for nombre in [
-    "Logo_AMH_verde.svg",
-    "logo-amh.svg",
-    "amh-logo.svg",
-    "Logo_AMH_verde.png",
-    "Logo_AMH_verde.jpg",
-    "Logo_AMH_verde.jpeg",
-    "Logo_AMH_verde.webp",
-]:
-    ruta = ASSETS / nombre
-    if not ruta.exists():
-        continue
-    if ruta.suffix.lower() == ".svg":
-        amh_cliente_logo = ruta.read_text(encoding="utf-8").replace(
-            "<svg ", '<svg class="client-logo-svg" ', 1
-        )
-        break
-    if ruta.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
-        src = imagen_base64(nombre)
-        amh_cliente_logo = (
-            f'<img class="client-logo-img" src="{src}" alt="AMH | Asociación Mexicana de Hepatología">'
-        )
-        break
 
-if not amh_cliente_logo:
-    amh_cliente_logo = (
-        '<div class="client-logo-placeholder">'
-        '<span class="client-logo-mark">AMH</span>'
-        '<small>Asociación Mexicana de Hepatología</small>'
-        '</div>'
-    )
+def logo_amh_fallback():
+    """Crea un logotipo visible en SVG con marca AMH para cuando no hay un archivo renderizable disponible."""
+    return '''
+    <svg class="client-logo-svg" viewBox="0 0 480 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AMH logo">
+      <defs>
+        <linearGradient id="amh-gradient" x1="0" x2="1">
+          <stop offset="0%" stop-color="#0D7A52"/>
+          <stop offset="100%" stop-color="#0A5E40"/>
+        </linearGradient>
+      </defs>
+      <rect width="480" height="120" fill="transparent"/>
+      <circle cx="56" cy="60" r="28" fill="none" stroke="url(#amh-gradient)" stroke-width="7"/>
+      <path d="M42 78V42h12v20h16V42h12v36H70V63H54v15H42Z" fill="url(#amh-gradient)"/>
+      <text x="110" y="76" font-size="56" font-weight="900" letter-spacing="-2" fill="#0B5B42" font-family="Arial, Helvetica, sans-serif">AMH</text>
+      <text x="106" y="96" font-size="12" font-weight="700" letter-spacing="4" fill="#4E6B7D" font-family="Arial, Helvetica, sans-serif">ASOCIACIÓN MEXICANA DE HEPATOLOGÍA</text>
+    </svg>
+    '''.strip()
+
+
+amh_cliente_logo = logo_amh_fallback()
 
 # ==================================================
 # PÁGINA COMPLETA
@@ -363,67 +351,33 @@ h1 span, .blue { color: var(--blue2); }
 .contact-form textarea { min-height: 110px; resize: vertical; }
 .full { grid-column: 1 / -1; }
 .contact-form button { cursor: pointer; }
-.clients-panel {
-    margin-top: 28px;
-    padding: 18px 18px 14px;
-    border: 1px solid #DDE8F5;
-    border-radius: 12px;
-    background: linear-gradient(145deg, #F8FBFF, #FFFFFF);
+.client-strip {
+    margin-top: 22px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }
-.clients-panel .eyebrow { margin-bottom: 14px; }
-.clients-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 110px;
-    border: 1px solid #D8E3F1;
-    border-radius: 10px;
-    background: #FFFFFF;
-    padding: 18px;
-}
-.client-logo-box,
-.client-logo-placeholder,
-.client-logo-img,
-.client-logo-svg {
-    max-width: 100%;
-    max-height: 100px;
-}
-.client-logo-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.client-logo-img {
-    display: block;
-    width: auto;
-    max-width: min(100%, 420px);
-    height: auto;
-    object-fit: contain;
-}
-.client-logo-svg {
-    display: block;
-    width: auto;
-    max-width: min(100%, 420px);
-    height: 90px;
-}
-.client-logo-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+.client-strip .eyebrow {
+    margin-bottom: 10px;
     text-align: center;
-    color: #0D4C8C;
 }
-.client-logo-mark {
-    font-size: clamp(26px, 4vw, 42px);
-    font-weight: 900;
-    letter-spacing: -2px;
+.client-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 86px;
+    padding: 0;
+    background: transparent;
 }
-.client-logo-placeholder small {
-    font-size: 12px;
-    color: #4A6079;
-    letter-spacing: 0.6px;
+.client-logo-svg {
+    display: block;
+    width: min(520px, 80%);
+    height: auto;
+    max-height: 110px;
+    filter: drop-shadow(0 4px 12px rgba(6, 76, 52, 0.08));
 }
 footer {
     border-top: 1px solid var(--border);
@@ -640,12 +594,12 @@ footer b { color: var(--white); letter-spacing: 2px; }
       </form>
       <p id="form-result" aria-live="polite" style="margin-top:16px"></p>
       <div id="contact-links" style="margin-top:16px"></div>
+    </div>
 
-      <div class="clients-panel">
-        <div class="eyebrow">Clientes</div>
-        <div class="clients-row">
-          <div class="client-logo-box">__CLIENT_LOGO__</div>
-        </div>
+    <div class="client-strip">
+      <div class="eyebrow">Clientes</div>
+      <div class="client-logo-row">
+        __CLIENT_LOGO__
       </div>
     </div>
   </section>
