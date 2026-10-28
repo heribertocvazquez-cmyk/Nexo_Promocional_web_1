@@ -689,6 +689,6 @@ pagina = pagina.replace("__WHATSAPP__", "".join(c for c in WHATSAPP if c.isdigit
 # el cursor y su estela compartan el mismo contexto del navegador.
 components.html(
     pagina,
-    height=5600,
-    scrolling=False,
+  height=7200,
+  scrolling=True,
 )
