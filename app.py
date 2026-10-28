@@ -392,6 +392,7 @@ h1 span, .blue { color: var(--blue2); }
     max-height: 100px;
     height: auto;
     object-fit: contain;
+    background: transparent;
 }
 .client-logo-svg {
     display: block;
