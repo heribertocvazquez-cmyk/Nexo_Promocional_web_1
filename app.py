@@ -75,37 +75,22 @@ roothua_imagen = bloque_imagen(
 
 
 def logo_amh_asset():
-    """Muestra un logo visible del cliente AMH en la sección de clientes."""
-    return """
-    <div class="client-logo-card client-logo-feature" aria-label="Cliente: AMH">
-      <svg class="client-logo-svg" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Asociación Mexicana de Hepatología">
-        <defs>
-          <path id="ring-a" d="M 120,130 a 116,116 0 1,1 0,0.0001"/>
-          <path id="ring-b" d="M 580,130 a 116,116 0 1,1 0,0.0001"/>
-        </defs>
+    """Muestra el logo real de AMH subido a assets/logo-hepatologia.svg."""
+    archivo = ASSETS / "logo-hepatologia.svg"
+    if not archivo.exists():
+        return (
+            '<div class="client-logo-card client-logo-feature">'
+            '<span class="client-logo-mark">AMH</span>'
+            '<small>Asociación Mexicana de Hepatología</small>'
+            '</div>'
+        )
 
-        <circle cx="350" cy="130" r="115" fill="none" stroke="#2aa061" stroke-width="3"/>
-        <circle cx="350" cy="130" r="97" fill="none" stroke="#2aa061" stroke-width="2.5" opacity="0.8"/>
-        <circle cx="350" cy="130" r="79" fill="none" stroke="#2aa061" stroke-width="2" opacity="0.8"/>
-
-        <text font-size="22" font-weight="700" letter-spacing="2.5" fill="#2aa061" font-family="Arial, Helvetica, sans-serif" textLength="540">
-          <textPath href="#ring-a" startOffset="12%">ASOCIACIÓN MEXICANA DE HEPATOLOGÍA</textPath>
-        </text>
-        <text font-size="22" font-weight="700" letter-spacing="2.5" fill="#2aa061" font-family="Arial, Helvetica, sans-serif" textLength="540">
-          <textPath href="#ring-b" startOffset="-12%">ASOCIACIÓN MEXICANA DE HEPATOLOGÍA</textPath>
-        </text>
-
-        <g transform="translate(350 130)">
-          <path d="M -58 24 C -30 2, -8 -8, 0 -18 C 12 -8, 28 -2, 48 0 C 69 2, 84 10, 96 26 C 108 40, 110 59, 101 71 C 87 86, 62 82, 44 76 C 28 70, 16 63, 6 55 C 3 53, -5 51, -12 53 L -12 80 C -32 88, -51 85, -66 72 C -82 59, -85 38, -58 24 Z" fill="#2aa061"/>
-          <path d="M 30 96 C 53 105, 68 142, 65 176 C 63 204, 38 220, 8 219 C -24 219, -42 197, -47 165 C -50 135, -32 109, 0 102 C 9 100, 20 96, 30 96 Z" fill="#2aa061" opacity="0.97"/>
-          <path d="M 15 104 C 27 118, 31 145, 26 170" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
-          <path d="M -6 104 C 14 121, 18 142, 11 170" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
-          <path d="M -31 24 C -54 35, -68 48, -86 66" fill="none" stroke="#2aa061" stroke-width="12" stroke-linecap="round"/>
-          <path d="M 95 24 C 119 14, 132 16, 147 23" fill="none" stroke="#2aa061" stroke-width="12" stroke-linecap="round"/>
-        </g>
-      </svg>
-    </div>
-    """
+    src = imagen_base64("logo-hepatologia.svg")
+    return (
+        '<div class="client-logo-card client-logo-feature">'
+        f'<img class="client-logo-svg" src="{src}" alt="Asociación Mexicana de Hepatología">'
+        '</div>'
+    )
 
 
 amh_cliente_logo = logo_amh_asset()
@@ -400,16 +385,16 @@ h1 span, .blue { color: var(--blue2); }
     box-shadow: 0 12px 28px rgba(10, 40, 80, 0.06);
 }
 .client-logo-feature {
-    width: min(100%, 520px);
+    width: min(100%, 700px);
     min-width: 0;
-    min-height: 190px;
+    min-height: 220px;
     padding: 18px 20px;
     background: linear-gradient(135deg, #ffffff, #f4faf7);
     border-color: #cfe4d8;
 }
 .client-logo-svg {
     display: block;
-    width: min(100%, 500px);
+    width: min(100%, 660px);
     height: auto;
 }
 footer {
