@@ -70,9 +70,9 @@ productos_imagen = bloque_imagen(
     "productos-promocionales.jpg", "project-image", "Productos promocionales"
 )
 roothua_imagen = bloque_imagen(
-    "roothua-proyecto.jpg", "project-image", "Roothúa · Publicidad y contenido digital"
+    "roothua_logo.svg", "project-image", "Roothúa · Publicidad y contenido digital"
 )
-
+"roothua-proyecto.jpg"
 
 def logo_amh_asset():
     """Muestra el logo real de AMH subido a assets/logo-hepatologia.svg."""
