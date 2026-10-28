@@ -483,7 +483,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
     </div>
     <div class="upcoming">
       <p>Estamos preparando nuevas colaboraciones y soluciones. Muy pronto compartiremos más detalles; mientras tanto, cuéntanos qué proyecto te gustaría hacer realidad.</p>
-      <a class="btn" href="#contacto">Platiquemos de tu proyecto ↗</a>
+      <a class="btn" href="#contact-form">Platiquemos de tu proyecto ↗</a>
     </div>
   </section>
 
