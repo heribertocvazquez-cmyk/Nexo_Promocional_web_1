@@ -74,26 +74,26 @@ roothua_imagen = bloque_imagen(
 )
 
 
-def logo_amh_fallback():
-    """Crea un logotipo visible en SVG con marca AMH para cuando no hay un archivo renderizable disponible."""
-    return '''
-    <svg class="client-logo-svg" viewBox="0 0 480 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AMH logo">
-      <defs>
-        <linearGradient id="amh-gradient" x1="0" x2="1">
-          <stop offset="0%" stop-color="#0D7A52"/>
-          <stop offset="100%" stop-color="#0A5E40"/>
-        </linearGradient>
-      </defs>
-      <rect width="480" height="120" fill="transparent"/>
-      <circle cx="56" cy="60" r="28" fill="none" stroke="url(#amh-gradient)" stroke-width="7"/>
-      <path d="M42 78V42h12v20h16V42h12v36H70V63H54v15H42Z" fill="url(#amh-gradient)"/>
-      <text x="110" y="76" font-size="56" font-weight="900" letter-spacing="-2" fill="#0B5B42" font-family="Arial, Helvetica, sans-serif">AMH</text>
-      <text x="106" y="96" font-size="12" font-weight="700" letter-spacing="4" fill="#4E6B7D" font-family="Arial, Helvetica, sans-serif">ASOCIACIÓN MEXICANA DE HEPATOLOGÍA</text>
-    </svg>
-    '''.strip()
+def logo_amh_asset():
+    """Usa el logo real que está en assets, incluso si es un .ai/PDF."""
+    asset_path = ASSETS / "Logo_AMH_verde.ai"
+    if not asset_path.exists():
+        return (
+            '<div class="client-logo-placeholder">'
+            '<span class="client-logo-mark">AMH</span>'
+            '<small>Asociación Mexicana de Hepatología</small>'
+            '</div>'
+        )
+
+    data_url = "data:application/pdf;base64," + base64.b64encode(asset_path.read_bytes()).decode("utf-8")
+    return (
+        '<object class="client-logo-pdf" type="application/pdf" data="{data_url}" aria-label="Logo AMH">'
+        '<span style="display:none">Logo AMH</span>'
+        '</object>'
+    ).format(data_url=data_url)
 
 
-amh_cliente_logo = logo_amh_fallback()
+amh_cliente_logo = logo_amh_asset()
 
 # ==================================================
 # PÁGINA COMPLETA
@@ -372,12 +372,33 @@ h1 span, .blue { color: var(--blue2); }
     padding: 0;
     background: transparent;
 }
-.client-logo-svg {
+.client-logo-pdf {
     display: block;
     width: min(520px, 80%);
-    height: auto;
+    height: 110px;
     max-height: 110px;
-    filter: drop-shadow(0 4px 12px rgba(6, 76, 52, 0.08));
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+.client-logo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    color: #0D4C8C;
+}
+.client-logo-mark {
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 900;
+    letter-spacing: -2px;
+}
+.client-logo-placeholder small {
+    font-size: 12px;
+    color: #4A6079;
+    letter-spacing: 0.6px;
 }
 footer {
     border-top: 1px solid var(--border);
@@ -416,7 +437,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
     line-height: 27px;
     text-align: center;
     text-shadow: 0 0 7px #087BFF, 0 0 17px #005BFF, 0 0 30px #005BFF;
-    transform: translate(-50%, -50%) scale(.8) rotate(-8deg);
+    transform: translate(-50%,-50%) scale(.8) rotate(-8deg);
     opacity: 0;
     will-change: transform, opacity;
 }
