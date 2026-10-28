@@ -95,6 +95,27 @@ def logo_amh_asset():
 
 amh_cliente_logo = logo_amh_asset()
 
+def logo_roothua_asset():
+    """Muestra el logo real de Roothua subido a assets/Roothua_logo.svg."""
+    archivo = ASSETS / "roothua_logo.svg"
+    if not archivo.exists():
+        return (
+            '<div class="client-logo-card client-logo-feature">'
+            '<span class="client-logo-mark">roothua</span>'
+            '<small>Roothùa</small>'
+            '</div>'
+        )
+
+    src = imagen_base64("roothua_logo.svg")
+    return (
+        '<div class="client-logo-card client-logo-feature">'
+        f'<img class="client-logo-svg" src="{src}" alt="Roothúa">'
+        '</div>'
+    )
+
+
+amh_cliente_logo = logo_roothua_asset()
+
 # ==================================================
 # PÁGINA COMPLETA
 # ==================================================
