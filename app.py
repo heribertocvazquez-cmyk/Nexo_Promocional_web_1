@@ -52,7 +52,7 @@ def bloque_imagen(nombre, clase, etiqueta):
         '</div>'
     )
 
-logo = imagen_base64("logo-nexo.png")
+logo = imagen_base64("nexo-horizontal.svg")
 logo_html = (
     f'<img class="logo-img" src="{logo}" alt="Nexo Promocional">'
     if logo
@@ -397,7 +397,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
       <a href="#servicios">Servicios</a>
       <a href="#proyectos">Proyectos</a>
       <a href="#proximos">Próximos proyectos</a>
-      <a class="nav-cta" href="#contacto">Hablemos ↗</a>
+      <a class="nav-cta" href="#contact-form">Hablemos ↗</a>
     </div>
   </nav>
 
@@ -408,7 +408,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
       <h1>Tu proyecto.<br>Muchas ideas.<br><span>Un solo Nexo.</span></h1>
       <p>Integramos productos promocionales, impresión, diseño y soluciones digitales para que tu marca llegue más lejos, con menos complicaciones.</p>
       <div class="actions">
-        <a class="btn" href="#contacto">Cuéntanos tu proyecto ↗</a>
+        <a class="btn" href="#contact-form">Cuéntanos tu proyecto ↗</a>
         <a class="btn outline" href="#servicios">Explorar servicios ↓</a>
       </div>
       <div class="hero-meta">
@@ -551,28 +551,34 @@ footer b { color: var(--white); letter-spacing: 2px; }
 </div>
 
 <script>
-/* Desplaza la página de Streamlit hacia los anclajes dentro del iframe. */
+/* Los anclajes están dentro del iframe; desplaza el contenedor de Streamlit. */
 document.addEventListener("click", function (event) {
-    const link = event.target.closest('a[href^="#"]');
+    const link = event.target instanceof Element
+        ? event.target.closest('a[href^="#"]')
+        : null;
     if (!link) return;
 
     const target = document.getElementById(link.getAttribute("href").slice(1));
     const frame = window.frameElement;
-    if (!target || !frame) return;
-
+    if (!target) return;
     event.preventDefault();
+
+    if (!frame) {
+        target.scrollIntoView({behavior: "smooth", block: "start"});
+        return;
+    }
 
     const parentWindow = window.parent;
     const parentDocument = frame.ownerDocument;
     const targetTop =
         frame.getBoundingClientRect().top +
-        target.getBoundingClientRect().top - 24;
+        target.getBoundingClientRect().top;
     let container = frame.parentElement;
 
     while (container && container !== parentDocument.body) {
         const overflowY = parentWindow.getComputedStyle(container).overflowY;
         if (
-            (overflowY === "auto" || overflowY === "scroll") &&
+            ["auto", "scroll", "overlay"].includes(overflowY) &&
             container.scrollHeight > container.clientHeight
         ) {
             break;
@@ -582,13 +588,17 @@ document.addEventListener("click", function (event) {
 
     if (container && container !== parentDocument.body) {
         container.scrollTo({
-            top: container.scrollTop + targetTop - container.getBoundingClientRect().top,
+            top: container.scrollTop + targetTop - container.getBoundingClientRect().top - 24,
             behavior: "smooth",
         });
     } else {
-        parentWindow.scrollBy({top: targetTop, behavior: "smooth"});
+        const scrollRoot = parentDocument.scrollingElement || parentDocument.documentElement;
+        parentWindow.scrollTo({
+            top: scrollRoot.scrollTop + targetTop - 24,
+            behavior: "smooth",
+        });
     }
-});
+}, true);
 
 /* =================================================
    ESTELA INTERACTIVA DE LA N DE NEXO
