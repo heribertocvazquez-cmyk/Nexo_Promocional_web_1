@@ -1,4 +1,6 @@
-import streamlit as st
+from pathlib import Path
+
+code = r'''import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
 import base64
@@ -17,24 +19,22 @@ st.set_page_config(
 BASE_DIR = Path(__file__).parent
 ASSETS = BASE_DIR / "assets"
 
-# Personaliza estos datos cuando estés listo
 CORREO = ""       # Ejemplo: ventas@tudominio.com
 WHATSAPP = ""     # Ejemplo: 525512345678, solo dígitos
 
 
 def imagen_base64(nombre):
-    """Carga una imagen local de assets y la convierte en una imagen incrustada."""
+    """Carga una imagen de assets y la convierte en una URI incrustada."""
     ruta = ASSETS / nombre
-    if not ruta.exists():
+    if not ruta.is_file():
         return ""
-    extension = ruta.suffix.lower()
     mime = {
         ".png": "image/png",
         ".jpg": "image/jpeg",
         ".jpeg": "image/jpeg",
         ".webp": "image/webp",
         ".svg": "image/svg+xml",
-    }.get(extension, "application/octet-stream")
+    }.get(ruta.suffix.lower(), "application/octet-stream")
     contenido = base64.b64encode(ruta.read_bytes()).decode("utf-8")
     return f"data:{mime};base64,{contenido}"
 
@@ -54,15 +54,19 @@ def bloque_imagen(nombre, clase, etiqueta):
     )
 
 
+# Logotipo principal de Nexo
 logo_path = ASSETS / "nexo-horizontal.svg"
-logo_html = (
-    logo_path.read_text(encoding="utf-8").replace(
+if logo_path.is_file():
+    logo_html = logo_path.read_text(encoding="utf-8").replace(
         "<svg ", '<svg class="logo-img" ', 1
     )
-    if logo_path.is_file()
-    else '<span class="logo-mark">N</span><span>NEXO<span class="logo-dot">.</span></span>'
-)
+else:
+    logo_html = (
+        '<span class="logo-mark">N</span>'
+        '<span>NEXO<span class="logo-dot">.</span></span>'
+    )
 
+# Imágenes de proyectos
 amh_imagen = bloque_imagen(
     "amh-entrega-01.jpg", "project-image", "AMH · Materiales para eventos"
 )
@@ -75,44 +79,35 @@ roothua_imagen = bloque_imagen(
 
 
 def logo_amh_asset():
-    """Muestra el logo real de AMH subido a assets/logo-hepatologia-transparente.png."""
-    archivo = ASSETS / "logo-hepatologia-transparente.png"
-    if not archivo.exists():
+    """Carga el logo de AMH. Archivo esperado: assets/logo-hepatologia-transparente.png."""
+    nombre = "logo-hepatologia-transparente.png"
+    src = imagen_base64(nombre)
+    if not src:
         return (
             '<div class="client-logo-card client-logo-feature">'
             '<span class="client-logo-mark">AMH</span>'
             '<small>Asociación Mexicana de Hepatología</small>'
             '</div>'
         )
-
-    src = imagen_base64("logo-hepatologia-transparente.png")
     return (
         '<div class="client-logo-card client-logo-feature">'
         f'<img class="client-logo-svg" src="{src}" alt="Asociación Mexicana de Hepatología">'
         '</div>'
     )
+
+
 def logo_roothua_asset():
-    logo_path = ASSETS_DIR / "roothua_logo.svg"
+    """Carga el logo de Roothúa. Archivo esperado: assets/roothua_logo.svg."""
+    nombre = "roothua_logo.svg"
+    src = imagen_base64(nombre)
+    if not src:
+        return ""
+    return (
+        '<div class="client-logo-card">'
+        f'<img class="client-logo-svg" src="{src}" alt="Roothúa">'
+        '</div>'
+    )
 
-    if logo_path.exists():
-        logo_uri = asset_data_uri(logo_path)
-
-        return f"""
-        <div class="client-logo-card">
-            <img
-                class="client-logo-svg"
-                src="{logo_uri}"
-                alt="Roothúa"
-            >
-        </div>
-        """
-
-    return ""
-
-<div class="client-logo-row">
-    {logo_amh_asset()}
-    {logo_cliente_nuevo_asset()}
-</div>
 
 # ==================================================
 # PÁGINA COMPLETA
@@ -126,11 +121,8 @@ pagina = r"""
 <style>
 :root {
   --bg: #F5F8FC;
-  --bg2: #FFFFFF;
-  --panel: #FFFFFF;
   --blue: #087BFF;
   --blue2: #075EAD;
-  --cyan: #007F9E;
   --white: #14263D;
   --muted: #596B80;
   --border: #DCE4EE;
@@ -149,316 +141,178 @@ button, input, textarea, select { font: inherit; }
 .wrap { width: min(1180px, 90%); margin: auto; }
 section { scroll-margin-top: 28px; }
 nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 0;
-    border-bottom: 1px solid var(--border);
-    gap: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 0; border-bottom: 1px solid var(--border); gap: 20px;
 }
 .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    font-size: 25px;
-    letter-spacing: 5px;
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 25px; letter-spacing: 5px;
 }
 .logo-mark {
-    color: var(--blue2);
-    font-size: 34px;
-    font-weight: 900;
-    letter-spacing: -4px;
-    margin-right: 5px;
+    color: var(--blue2); font-size: 34px; font-weight: 900;
+    letter-spacing: -4px; margin-right: 5px;
 }
 .logo-dot { color: var(--blue2); }
 .logo-img { display: block; width: 170px; height: 60px; flex: 0 0 auto; }
 .navlinks {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 25px;
-    font-size: 14px;
-    color: #4B5D72;
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 25px; font-size: 14px; color: #4B5D72;
 }
 .navlinks a:hover { color: var(--blue2); }
 .nav-cta {
-    background: var(--blue);
-    border-radius: 6px;
-    padding: 12px 17px;
-    color: white !important;
+    background: var(--blue); border-radius: 6px;
+    padding: 12px 17px; color: white !important;
 }
 .hero {
-    min-height: 610px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    padding: 80px 0;
+    min-height: 610px; position: relative; display: flex;
+    align-items: center; overflow: hidden; padding: 80px 0;
 }
 .hero-glow {
-    position: absolute;
-    right: -170px;
-    top: 5px;
-    width: 600px;
-    height: 500px;
+    position: absolute; right: -170px; top: 5px;
+    width: 600px; height: 500px;
     background: radial-gradient(ellipse, rgba(0,91,255,.10), transparent 68%);
     pointer-events: none;
 }
 .hero-content { position: relative; z-index: 2; max-width: 780px; }
 .eyebrow {
-    color: var(--blue2);
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    font-size: 12px;
-    font-weight: 800;
-    margin-bottom: 23px;
+    color: var(--blue2); text-transform: uppercase; letter-spacing: 4px;
+    font-size: 12px; font-weight: 800; margin-bottom: 23px;
 }
 h1, h2, h3, p { margin-top: 0; }
 h1 {
-    font-size: clamp(46px, 7.3vw, 88px);
-    line-height: .99;
-    letter-spacing: -5px;
-    margin-bottom: 26px;
-    font-weight: 800;
+    font-size: clamp(46px, 7.3vw, 88px); line-height: .99;
+    letter-spacing: -5px; margin-bottom: 26px; font-weight: 800;
 }
 h1 span, .blue { color: var(--blue2); }
 .hero p {
-    font-size: 18px;
-    line-height: 1.8;
-    max-width: 590px;
-    color: #52657B;
+    font-size: 18px; line-height: 1.8; max-width: 590px; color: #52657B;
 }
 .actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 32px; }
 .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px 22px;
-    border-radius: 7px;
-    background: var(--blue);
-    color: white;
-    font-weight: 700;
-    border: 1px solid var(--blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 15px 22px; border-radius: 7px; background: var(--blue);
+    color: white; font-weight: 700; border: 1px solid var(--blue);
     transition: .2s ease;
 }
 .btn:hover { transform: translateY(-3px); background: #218CFF; }
 .btn.outline { background: transparent; border-color: #AAB9C9; color: var(--white); }
 .btn.outline:hover { border-color: var(--blue2); }
 .hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    margin-top: 46px;
-    font-size: 12px;
-    letter-spacing: .5px;
-    color: #596B80;
+    display: flex; flex-wrap: wrap; gap: 24px; margin-top: 46px;
+    font-size: 12px; letter-spacing: .5px; color: #596B80;
 }
 .hero-meta b { color: var(--blue2); }
 .section { padding: 78px 0; border-top: 1px solid #E2E8F0; }
 .section-head { max-width: 760px; margin-bottom: 35px; }
 .section-head h2 {
-    font-size: clamp(32px, 4.5vw, 54px);
-    line-height: 1.08;
-    letter-spacing: -2px;
-    margin-bottom: 16px;
+    font-size: clamp(32px, 4.5vw, 54px); line-height: 1.08;
+    letter-spacing: -2px; margin-bottom: 16px;
 }
-.section-head p, .body-copy {
-    color: var(--muted);
-    font-size: 16px;
-    line-height: 1.85;
-}
+.section-head p, .body-copy { color: var(--muted); font-size: 16px; line-height: 1.85; }
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; align-items: center; }
 .card {
-    border: 1px solid var(--border);
-    background: linear-gradient(145deg, #FFFFFF, #F8FAFC);
-    padding: 27px;
-    min-height: 220px;
-    border-radius: 10px;
+    border: 1px solid var(--border); background: linear-gradient(145deg, #FFFFFF, #F8FAFC);
+    padding: 27px; min-height: 220px; border-radius: 10px;
     transition: transform .25s, border-color .25s, box-shadow .25s;
 }
 .card:hover {
-    transform: translateY(-6px);
-    border-color: #1269C5;
+    transform: translateY(-6px); border-color: #1269C5;
     box-shadow: 0 12px 38px #17365D12;
 }
 .num { color: var(--blue2); font-size: 12px; font-weight: 800; margin-bottom: 26px; }
 .card h3 { font-size: 21px; letter-spacing: -.5px; margin-bottom: 12px; }
 .card p { color: var(--muted); line-height: 1.75; font-size: 14px; margin-bottom: 0; }
 .band {
-    border: 1px solid #D5E2F0;
-    background: linear-gradient(100deg, #F1F7FE, #FFFFFF);
-    border-radius: 10px;
-    padding: 26px 30px;
-    margin-top: 25px;
-    line-height: 1.7;
+    border: 1px solid #D5E2F0; background: linear-gradient(100deg, #F1F7FE, #FFFFFF);
+    border-radius: 10px; padding: 26px 30px; margin-top: 25px; line-height: 1.7;
 }
 .band strong { color: var(--white); }
 .band span { color: var(--muted); }
 .project-image {
-    width: 100%;
-    height: 350px;
-    border: 1px solid #D8E2ED;
-    border-radius: 11px;
+    width: 100%; height: 350px; border: 1px solid #D8E2ED; border-radius: 11px;
     overflow: hidden;
-    background:
-      radial-gradient(ellipse at 80% 10%, #E1F0FF, transparent 45%),
-      linear-gradient(145deg, #F3F8FD, #EAF1F8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: radial-gradient(ellipse at 80% 10%, #E1F0FF, transparent 45%),
+                linear-gradient(145deg, #F3F8FD, #EAF1F8);
+    display: flex; align-items: center; justify-content: center;
 }
 .project-image img { width: 100%; height: 100%; object-fit: cover; }
 .project-image.placeholder span {
-    padding: 25px;
-    text-align: center;
-    color: #075EAD;
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: 1px;
+    padding: 25px; text-align: center; color: #075EAD;
+    font-size: 21px; font-weight: 800; letter-spacing: 1px;
 }
 .project-copy h2 { font-size: 38px; line-height: 1.12; letter-spacing: -1.5px; }
 .project-copy p { color: var(--muted); line-height: 1.8; }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .tag {
-    border: 1px solid #C9DDF1;
-    background: #F0F6FC;
-    color: #075EAD;
-    padding: 7px 10px;
-    border-radius: 4px;
-    font-size: 12px;
+    border: 1px solid #C9DDF1; background: #F0F6FC; color: #075EAD;
+    padding: 7px 10px; border-radius: 4px; font-size: 12px;
 }
 .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.step {
-    border-top: 2px solid var(--blue);
-    padding-top: 20px;
-}
+.step { border-top: 2px solid var(--blue); padding-top: 20px; }
 .step b { display: block; color: var(--blue2); font-size: 13px; margin-bottom: 12px; }
 .step h3 { font-size: 18px; margin-bottom: 9px; }
 .step p { color: var(--muted); font-size: 14px; line-height: 1.7; }
 .cta {
-    padding: 45px;
-    border: 1px solid #C9DDF1;
-    border-radius: 12px;
-    background:
-      radial-gradient(ellipse at 95% 5%, #E5F2FF, transparent 40%),
-      linear-gradient(125deg, #F3F8FD, #FFFFFF);
+    padding: 45px; border: 1px solid #C9DDF1; border-radius: 12px;
+    background: radial-gradient(ellipse at 95% 5%, #E5F2FF, transparent 40%),
+                linear-gradient(125deg, #F3F8FD, #FFFFFF);
 }
 .cta h2 { font-size: clamp(35px, 5vw, 57px); line-height: 1.06; letter-spacing: -2px; margin-bottom: 18px; }
 .cta p { color: var(--muted); line-height: 1.8; max-width: 640px; }
 .contact-form {
-    margin-top: 28px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    margin-top: 28px; display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;
 }
 .contact-form label { display: block; font-size: 12px; color: #43566D; margin-bottom: 7px; }
 .contact-form input, .contact-form select, .contact-form textarea {
-    display: block;
-    width: 100%;
-    background: #FFFFFF;
-    color: #14263D;
-    border: 1px solid #CBD6E2;
-    border-radius: 5px;
-    padding: 13px;
-    outline: none;
+    display: block; width: 100%; background: #FFFFFF; color: #14263D;
+    border: 1px solid #CBD6E2; border-radius: 5px; padding: 13px; outline: none;
 }
-.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus {
-    border-color: var(--blue);
-}
+.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus { border-color: var(--blue); }
 .contact-form textarea { min-height: 110px; resize: vertical; }
 .full { grid-column: 1 / -1; }
 .contact-form button { cursor: pointer; }
 .client-strip {
-    margin-top: 22px;
-    padding: 0;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+    margin-top: 22px; padding: 0; background: transparent;
+    border: none; border-radius: 0; box-shadow: none;
 }
-.client-strip .eyebrow {
-    margin-bottom: 10px;
-    text-align: center;
-}
+.client-strip .eyebrow { margin-bottom: 10px; text-align: center; }
 .client-logo-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    width: 100%;
-    min-height: 100px;
-    padding: 10px 0;
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: 30px; width: 100%; min-height: 100px; padding: 10px 0;
     background: transparent;
 }
 .client-logo-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 250px;
-    min-width: 0;
-    padding: 10px;
-    border: none;
-    background: transparent;
-    box-shadow: none;
+    display: flex; align-items: center; justify-content: center;
+    width: 250px; min-width: 0; min-height: 0; padding: 10px;
+    border: none; border-radius: 0; background: transparent; box-shadow: none;
 }
+.client-logo-feature { width: 250px; min-height: 0; padding: 10px; background: transparent; }
 .client-logo-svg {
-    display: block;
-    width: 100%;
-    max-width: 200px;
-    max-height: 90px;
-    height: auto;
-    object-fit: contain;
+    display: block; width: 100%; max-width: 200px; max-height: 90px;
+    height: auto; object-fit: contain; background: transparent;
 }
-.client-logo-svg {
-    display: block;
-    width: min(100%, 660px);
-    height: auto;
-}
+.client-logo-mark { font-size: 36px; font-weight: 800; color: var(--blue2); }
+.client-logo-card small { display: block; margin-left: 10px; color: var(--muted); font-size: 11px; }
 footer {
-    border-top: 1px solid var(--border);
-    padding: 28px 0 35px;
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
-    color: #65768A;
-    font-size: 12px;
+    border-top: 1px solid var(--border); padding: 28px 0 35px;
+    display: flex; justify-content: space-between; gap: 15px;
+    flex-wrap: wrap; color: #65768A; font-size: 12px;
 }
 footer b { color: var(--white); letter-spacing: 2px; }
-.upcoming {
-  border-left: 3px solid var(--blue);
-  padding: 5px 0 5px 22px;
-  max-width: 760px;
-}
+.upcoming { border-left: 3px solid var(--blue); padding: 5px 0 5px 22px; max-width: 760px; }
 .upcoming p { color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
-
-#trail-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;
-    overflow: hidden;
-}
+#trail-layer { position: fixed; inset: 0; z-index: 9999; pointer-events: none; overflow: hidden; }
 .trail-n {
-    position: absolute;
-    width: 23px;
-    height: 27px;
-    color: #087BFF;
-    font-family: Arial, sans-serif;
-    font-weight: 900;
-    font-size: 25px;
-    line-height: 27px;
-    text-align: center;
+    position: absolute; width: 23px; height: 27px; color: #087BFF;
+    font-family: Arial, sans-serif; font-weight: 900; font-size: 25px;
+    line-height: 27px; text-align: center;
     text-shadow: 0 0 7px #087BFF, 0 0 17px #005BFF, 0 0 30px #005BFF;
     transform: translate(-50%, -50%) scale(.8) rotate(-8deg);
-    opacity: 0;
-    will-change: transform, opacity;
+    opacity: 0; will-change: transform, opacity;
 }
-@media (hover: none), (pointer: coarse) {
-    #trail-layer { display: none; }
-}
+@media (hover: none), (pointer: coarse) { #trail-layer { display: none; } }
 @media (max-width: 760px) {
     .wrap { width: 91%; }
     nav { align-items: flex-start; flex-direction: column; }
@@ -476,9 +330,7 @@ footer b { color: var(--white); letter-spacing: 2px; }
 </style>
 </head>
 <body>
-
 <div id="trail-layer" aria-hidden="true"></div>
-
 <div class="wrap">
   <nav>
     <a class="brand" href="#inicio">__LOGO__</a>
@@ -608,7 +460,6 @@ footer b { color: var(--white); letter-spacing: 2px; }
       <div class="eyebrow">Hagamos equipo</div>
       <h2>¿Qué necesitas<br><span class="blue">resolver hoy?</span></h2>
       <p>Cuéntanos tu idea. Te ayudaremos a identificar los materiales y servicios que pueden hacer realidad tu proyecto.</p>
-
       <form class="contact-form" id="contact-form">
         <div><label for="nombre">Nombre *</label><input id="nombre" name="nombre" required placeholder="Tu nombre"></div>
         <div><label for="empresa">Empresa u organización</label><input id="empresa" name="empresa" placeholder="Nombre de tu organización"></div>
@@ -631,12 +482,9 @@ footer b { color: var(--white); letter-spacing: 2px; }
       <p id="form-result" aria-live="polite" style="margin-top:16px"></p>
       <div id="contact-links" style="margin-top:16px"></div>
     </div>
-
     <div class="client-strip">
       <div class="eyebrow">Clientes</div>
-      <div class="client-logo-row">
-        __CLIENT_LOGO__
-      </div>
+      <div class="client-logo-row">__CLIENT_LOGO__</div>
     </div>
   </section>
 
@@ -648,41 +496,26 @@ footer b { color: var(--white); letter-spacing: 2px; }
 </div>
 
 <script>
-/* Los anclajes están dentro del iframe; desplaza el contenedor de Streamlit. */
 document.addEventListener("click", function (event) {
-    const link = event.target instanceof Element
-        ? event.target.closest('a[href^="#"]')
-        : null;
+    const link = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
     if (!link) return;
-
     const target = document.getElementById(link.getAttribute("href").slice(1));
     const frame = window.frameElement;
     if (!target) return;
     event.preventDefault();
-
     if (!frame) {
         target.scrollIntoView({behavior: "smooth", block: "start"});
         return;
     }
-
     const parentWindow = window.parent;
     const parentDocument = frame.ownerDocument;
-    const targetTop =
-        frame.getBoundingClientRect().top +
-        target.getBoundingClientRect().top;
+    const targetTop = frame.getBoundingClientRect().top + target.getBoundingClientRect().top;
     let container = frame.parentElement;
-
     while (container && container !== parentDocument.body) {
         const overflowY = parentWindow.getComputedStyle(container).overflowY;
-        if (
-            ["auto", "scroll", "overlay"].includes(overflowY) &&
-            container.scrollHeight > container.clientHeight
-        ) {
-            break;
-        }
+        if (["auto", "scroll", "overlay"].includes(overflowY) && container.scrollHeight > container.clientHeight) break;
         container = container.parentElement;
     }
-
     if (container && container !== parentDocument.body) {
         container.scrollTo({
             top: container.scrollTop + targetTop - container.getBoundingClientRect().top - 24,
@@ -690,19 +523,14 @@ document.addEventListener("click", function (event) {
         });
     } else {
         const scrollRoot = parentDocument.scrollingElement || parentDocument.documentElement;
-        parentWindow.scrollTo({
-            top: scrollRoot.scrollTop + targetTop - 24,
-            behavior: "smooth",
-        });
+        parentWindow.scrollTo({top: scrollRoot.scrollTop + targetTop - 24, behavior: "smooth"});
     }
 }, true);
 
 (function () {
     const layer = document.getElementById("trail-layer");
     if (!layer || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-
-    const total = 11;
-    const items = [];
+    const total = 11, items = [];
     for (let i = 0; i < total; i++) {
         const el = document.createElement("span");
         el.className = "trail-n";
@@ -710,46 +538,30 @@ document.addEventListener("click", function (event) {
         layer.appendChild(el);
         items.push({el: el, x: -100, y: -100});
     }
-
-    let mouseX = -100, mouseY = -100;
-    let visible = false;
-
+    let mouseX = -100, mouseY = -100, visible = false;
     window.addEventListener("mousemove", function (e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        visible = true;
+        mouseX = e.clientX; mouseY = e.clientY; visible = true;
     }, {passive: true});
-
-    window.addEventListener("mouseout", function (e) {
-        if (!e.relatedTarget) visible = false;
-    });
-
+    window.addEventListener("mouseout", function (e) { if (!e.relatedTarget) visible = false; });
     window.addEventListener("blur", function () { visible = false; });
     window.addEventListener("focus", function () { visible = true; });
-
     function animate() {
-        let targetX = mouseX;
-        let targetY = mouseY;
-
+        let targetX = mouseX, targetY = mouseY;
         items.forEach(function (item, i) {
             const lag = 0.29 - i * 0.014;
             item.x += (targetX - item.x) * lag;
             item.y += (targetY - item.y) * lag;
-
             const progress = 1 - i / total;
             const scale = 0.45 + progress * 0.55;
             const opacity = visible ? Math.pow(progress, 1.45) * 0.9 : 0;
-
             item.el.style.left = item.x + "px";
             item.el.style.top = item.y + "px";
             item.el.style.opacity = opacity;
             item.el.style.transform = "translate(-50%,-50%) scale(" + scale + ") rotate(-8deg)";
             item.el.style.filter = "blur(" + (1 - progress) * 1.3 + "px)";
-
             targetX = item.x + (mouseX - item.x) * 0.12;
             targetY = item.y + (mouseY - item.y) * 0.12;
         });
-
         requestAnimationFrame(animate);
     }
     animate();
@@ -759,7 +571,6 @@ document.addEventListener("click", function (event) {
     const form = document.getElementById("contact-form");
     const result = document.getElementById("form-result");
     const links = document.getElementById("contact-links");
-
     const emailDestino = "__EMAIL__";
     const whatsappDestino = "__WHATSAPP__";
 
@@ -781,23 +592,20 @@ document.addEventListener("click", function (event) {
         const empresa = data.get("empresa").trim();
         const tipo = data.get("tipo");
         const mensaje = data.get("mensaje").trim();
-
         const asunto = "Solicitud de cotización Nexo Promocional: " + tipo;
-        const cuerpo =
-            "Nombre: " + nombre + "\n" +
-            "Empresa: " + empresa + "\n" +
-            "Correo: " + correo + "\n" +
-            "Servicio: " + tipo + "\n\n" +
-            "Proyecto:\n" + mensaje;
+        const cuerpo = "Nombre: " + nombre + "\\n" +
+            "Empresa: " + empresa + "\\n" +
+            "Correo: " + correo + "\\n" +
+            "Servicio: " + tipo + "\\n\\n" +
+            "Proyecto:\\n" + mensaje;
 
         if (emailDestino) {
-            window.location.href =
-                "mailto:" + emailDestino +
+            window.location.href = "mailto:" + emailDestino +
                 "?subject=" + encodeURIComponent(asunto) +
                 "&body=" + encodeURIComponent(cuerpo);
             result.textContent = "Se abrirá tu aplicación de correo para que puedas revisar y enviar la solicitud.";
         } else {
-            const blob = new Blob([asunto + "\n\n" + cuerpo], {type: "text/plain;charset=utf-8"});
+            const blob = new Blob([asunto + "\\n\\n" + cuerpo], {type: "text/plain;charset=utf-8"});
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -813,16 +621,19 @@ document.addEventListener("click", function (event) {
 </html>
 """
 
+# Insertar contenido dinámico en la plantilla
 pagina = pagina.replace("__LOGO__", logo_html)
 pagina = pagina.replace("__AMH_IMAGE__", amh_imagen)
 pagina = pagina.replace("__PRODUCTS_IMAGE__", productos_imagen)
 pagina = pagina.replace("__ROOTHUA_IMAGE__", roothua_imagen)
 pagina = pagina.replace("__EMAIL__", CORREO.strip())
 pagina = pagina.replace("__WHATSAPP__", "".join(c for c in WHATSAPP if c.isdigit()))
-pagina = pagina.replace("__CLIENT_LOGO__", amh_cliente_logo)
+pagina = pagina.replace("__CLIENT_LOGO__", logo_amh_asset() + logo_roothua_asset())
 
-components.html(
-    pagina,
-    height=7200,
-    scrolling=True,
-)
+components.html(pagina, height=7200, scrolling=True)
+'''
+path = Path("/mnt/data/app.py")
+path.write_text(code, encoding="utf-8")
+# quick syntax check
+compile(code, str(path), "exec")
+print(f"Archivo creado y sintaxis Python verificada: {path} ({len(code.splitlines())} líneas)")
