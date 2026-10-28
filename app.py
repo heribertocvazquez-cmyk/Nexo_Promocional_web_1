@@ -804,6 +804,6 @@ pagina = pagina.replace("__CLIENT_LOGO__", amh_cliente_logo)
 
 components.html(
     pagina,
-    height=3200,
+    height=7200,
     scrolling=True,
 )
