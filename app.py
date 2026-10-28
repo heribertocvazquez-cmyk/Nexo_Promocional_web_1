@@ -96,7 +96,7 @@ def logo_amh_asset():
 amh_cliente_logo = logo_amh_asset()
 
 def logo_roothua_asset():
-    """Muestra el logo real de Roothua subido a assets/Roothua_logo.svg."""
+    """Muestra el logo real de Roothua subido a assets/roothua_logo.svg."""
     archivo = ASSETS / "roothua_logo.svg"
     if not archivo.exists():
         return (
