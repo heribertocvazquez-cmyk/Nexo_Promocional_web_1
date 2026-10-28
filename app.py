@@ -551,6 +551,45 @@ footer b { color: var(--white); letter-spacing: 2px; }
 </div>
 
 <script>
+/* Desplaza la página de Streamlit hacia los anclajes dentro del iframe. */
+document.addEventListener("click", function (event) {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link) return;
+
+    const target = document.getElementById(link.getAttribute("href").slice(1));
+    const frame = window.frameElement;
+    if (!target || !frame) return;
+
+    event.preventDefault();
+
+    const parentWindow = window.parent;
+    const parentDocument = frame.ownerDocument;
+    const targetTop =
+        frame.getBoundingClientRect().top +
+        target.getBoundingClientRect().top - 24;
+    let container = frame.parentElement;
+
+    while (container && container !== parentDocument.body) {
+        const overflowY = parentWindow.getComputedStyle(container).overflowY;
+        if (
+            (overflowY === "auto" || overflowY === "scroll") &&
+            container.scrollHeight > container.clientHeight
+        ) {
+            break;
+        }
+        container = container.parentElement;
+    }
+
+    if (container && container !== parentDocument.body) {
+        container.scrollTo({
+            top: container.scrollTop + targetTop - container.getBoundingClientRect().top,
+            behavior: "smooth",
+        });
+    } else {
+        parentWindow.scrollBy({top: targetTop, behavior: "smooth"});
+    }
+});
+
 /* =================================================
    ESTELA INTERACTIVA DE LA N DE NEXO
    ================================================= */
