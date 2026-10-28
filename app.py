@@ -1,4 +1,3 @@
-
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
@@ -22,6 +21,7 @@ ASSETS = BASE_DIR / "assets"
 CORREO = ""       # Ejemplo: ventas@tudominio.com
 WHATSAPP = ""     # Ejemplo: 525512345678, solo dígitos
 
+
 def imagen_base64(nombre):
     """Carga una imagen local de assets y la convierte en una imagen incrustada."""
     ruta = ASSETS / nombre
@@ -38,6 +38,7 @@ def imagen_base64(nombre):
     contenido = base64.b64encode(ruta.read_bytes()).decode("utf-8")
     return f"data:{mime};base64,{contenido}"
 
+
 def bloque_imagen(nombre, clase, etiqueta):
     src = imagen_base64(nombre)
     if src:
@@ -51,6 +52,7 @@ def bloque_imagen(nombre, clase, etiqueta):
         f'<span>{html.escape(etiqueta)}</span>'
         '</div>'
     )
+
 
 logo_path = ASSETS / "nexo-horizontal.svg"
 logo_html = (
@@ -70,6 +72,40 @@ productos_imagen = bloque_imagen(
 roothua_imagen = bloque_imagen(
   "roothua-proyecto.jpg", "project-image", "Roothúa · Publicidad y contenido digital"
 )
+
+# Logo del cliente para la sección final
+amh_cliente_logo = ""
+for nombre in [
+    "Logo_AMH_verde.svg",
+    "logo-amh.svg",
+    "amh-logo.svg",
+    "Logo_AMH_verde.png",
+    "Logo_AMH_verde.jpg",
+    "Logo_AMH_verde.jpeg",
+    "Logo_AMH_verde.webp",
+]:
+    ruta = ASSETS / nombre
+    if not ruta.exists():
+        continue
+    if ruta.suffix.lower() == ".svg":
+        amh_cliente_logo = ruta.read_text(encoding="utf-8").replace(
+            "<svg ", '<svg class="client-logo-svg" ', 1
+        )
+        break
+    if ruta.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+        src = imagen_base64(nombre)
+        amh_cliente_logo = (
+            f'<img class="client-logo-img" src="{src}" alt="AMH | Asociación Mexicana de Hepatología">'
+        )
+        break
+
+if not amh_cliente_logo:
+    amh_cliente_logo = (
+        '<div class="client-logo-placeholder">'
+        '<span class="client-logo-mark">AMH</span>'
+        '<small>Asociación Mexicana de Hepatología</small>'
+        '</div>'
+    )
 
 # ==================================================
 # PÁGINA COMPLETA
@@ -327,6 +363,68 @@ h1 span, .blue { color: var(--blue2); }
 .contact-form textarea { min-height: 110px; resize: vertical; }
 .full { grid-column: 1 / -1; }
 .contact-form button { cursor: pointer; }
+.clients-panel {
+    margin-top: 28px;
+    padding: 18px 18px 14px;
+    border: 1px solid #DDE8F5;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #F8FBFF, #FFFFFF);
+}
+.clients-panel .eyebrow { margin-bottom: 14px; }
+.clients-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 110px;
+    border: 1px solid #D8E3F1;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 18px;
+}
+.client-logo-box,
+.client-logo-placeholder,
+.client-logo-img,
+.client-logo-svg {
+    max-width: 100%;
+    max-height: 100px;
+}
+.client-logo-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.client-logo-img {
+    display: block;
+    width: auto;
+    max-width: min(100%, 420px);
+    height: auto;
+    object-fit: contain;
+}
+.client-logo-svg {
+    display: block;
+    width: auto;
+    max-width: min(100%, 420px);
+    height: 90px;
+}
+.client-logo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    color: #0D4C8C;
+}
+.client-logo-mark {
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 900;
+    letter-spacing: -2px;
+}
+.client-logo-placeholder small {
+    font-size: 12px;
+    color: #4A6079;
+    letter-spacing: 0.6px;
+}
 footer {
     border-top: 1px solid var(--border);
     padding: 28px 0 35px;
@@ -542,6 +640,13 @@ footer b { color: var(--white); letter-spacing: 2px; }
       </form>
       <p id="form-result" aria-live="polite" style="margin-top:16px"></p>
       <div id="contact-links" style="margin-top:16px"></div>
+
+      <div class="clients-panel">
+        <div class="eyebrow">Clientes</div>
+        <div class="clients-row">
+          <div class="client-logo-box">__CLIENT_LOGO__</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -735,6 +840,7 @@ pagina = pagina.replace("__PRODUCTS_IMAGE__", productos_imagen)
 pagina = pagina.replace("__ROOTHUA_IMAGE__", roothua_imagen)
 pagina = pagina.replace("__EMAIL__", CORREO.strip())
 pagina = pagina.replace("__WHATSAPP__", "".join(c for c in WHATSAPP if c.isdigit()))
+pagina = pagina.replace("__CLIENT_LOGO__", amh_cliente_logo)
 
 # El contenido completo se encuentra dentro del mismo marco para que
 # el cursor y su estela compartan el mismo contexto del navegador.
