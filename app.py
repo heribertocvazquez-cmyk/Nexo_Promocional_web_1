@@ -75,7 +75,7 @@ roothua_imagen = bloque_imagen(
 
 
 def logo_amh_asset():
-    """Usa el PDF del logo AMH que está en assets para mostrarlo directamente en la web."""
+    """Muestra un identificador visible del cliente AMH. Si el PDF no renderiza bien, se convierte en un enlace visible para abrirlo."""
     pdf_path = ASSETS / "Logo_AMH_verde.pdf"
     if not pdf_path.exists():
         return (
@@ -85,9 +85,15 @@ def logo_amh_asset():
             '</div>'
         )
 
-    data_url = "data:application/pdf;base64," + base64.b64encode(pdf_path.read_bytes()).decode("utf-8")
+    pdf_data = base64.b64encode(pdf_path.read_bytes()).decode("utf-8")
+    data_url = "data:application/pdf;base64," + pdf_data
     return (
-        '<embed class="client-logo-pdf" src="{data_url}" type="application/pdf" />'
+        '<div class="client-logo-card">'
+        '<a class="client-logo-link" href="{data_url}" target="_blank" rel="noopener noreferrer">'
+        '<span class="client-logo-mark">AMH</span>'
+        '<small>Asociación Mexicana de Hepatología</small>'
+        '</a>'
+        '</div>'
     ).format(data_url=data_url)
 
 
@@ -370,22 +376,26 @@ h1 span, .blue { color: var(--blue2); }
     padding: 0;
     background: transparent;
 }
-.client-logo-pdf {
-    display: block;
-    width: min(520px, 80%);
-    height: 120px;
-    max-height: 120px;
-    border: none;
-    background: transparent;
-    box-shadow: none;
+.client-logo-card {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 260px;
+    min-height: 120px;
+    padding: 16px 24px;
+    border: 1px solid #D4E4F5;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #F7FBFF, #FFFFFF);
+    box-shadow: 0 12px 28px rgba(10, 40, 80, 0.06);
 }
-.client-logo-placeholder {
+.client-logo-link {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     text-align: center;
+    text-decoration: none;
     color: #0D4C8C;
 }
 .client-logo-mark {
@@ -393,7 +403,7 @@ h1 span, .blue { color: var(--blue2); }
     font-weight: 900;
     letter-spacing: -2px;
 }
-.client-logo-placeholder small {
+.client-logo-link small {
     font-size: 12px;
     color: #4A6079;
     letter-spacing: 0.6px;
