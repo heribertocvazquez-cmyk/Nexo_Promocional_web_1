@@ -4,6 +4,7 @@ import streamlit.components.v1 as components
 from pathlib import Path
 import base64
 import html
+import json
 
 # ==================================================
 # CONFIGURACIÓN
@@ -18,28 +19,27 @@ st.set_page_config(
 BASE_DIR = Path(__file__).parent
 ASSETS = BASE_DIR / "assets"
 
+# Completa estos datos para habilitar el contacto directo.
 CORREO = ""
 WHATSAPP = ""
 
 
 # ==================================================
-# FUNCIONES DE IMÁGENES Y LOGOTIPOS
+# FUNCIONES
 # ==================================================
 def imagen_base64(nombre):
-    """Carga una imagen local de assets y la convierte en una URI."""
     ruta = ASSETS / nombre
 
     if not ruta.exists():
         return ""
 
-    extension = ruta.suffix.lower()
     mime = {
         ".png": "image/png",
         ".jpg": "image/jpeg",
         ".jpeg": "image/jpeg",
         ".webp": "image/webp",
         ".svg": "image/svg+xml",
-    }.get(extension, "application/octet-stream")
+    }.get(ruta.suffix.lower(), "application/octet-stream")
 
     contenido = base64.b64encode(ruta.read_bytes()).decode("utf-8")
     return f"data:{mime};base64,{contenido}"
@@ -62,16 +62,55 @@ def bloque_imagen(nombre, clase, etiqueta):
     )
 
 
+def logo_amh_asset():
+    src = imagen_base64("logo-hepatologia.svg")
+
+    if not src:
+        return (
+            '<div class="client-logo-card">'
+            '<span class="client-logo-mark">AMH</span>'
+            '<small>Asociación Mexicana de Hepatología</small>'
+            "</div>"
+        )
+
+    return (
+        '<div class="client-logo-card">'
+        f'<img class="client-logo-svg" src="{src}" '
+        'alt="Asociación Mexicana de Hepatología">'
+        "</div>"
+    )
+
+
+def logo_roothua_asset():
+    src = imagen_base64("roothua_logo.svg")
+
+    if not src:
+        return ""
+
+    return (
+        '<div class="client-logo-card">'
+        f'<img class="client-logo-svg" src="{src}" alt="Roothúa">'
+        "</div>"
+    )
+
+
+# ==================================================
+# LOGOTIPOS E IMÁGENES
+# ==================================================
 logo_path = ASSETS / "nexo-horizontal.svg"
 
-logo_html = (
-    logo_path.read_text(encoding="utf-8").replace(
-        "<svg ", '<svg class="logo-img" ', 1
+if logo_path.exists():
+    logo_html = logo_path.read_text(encoding="utf-8")
+    logo_html = logo_html.replace(
+        "<svg ",
+        '<svg class="logo-img" ',
+        1,
     )
-    if logo_path.is_file()
-    else '<span class="logo-mark">N</span>'
-         '<span>NEXO<span class="logo-dot">.</span></span>'
-)
+else:
+    logo_html = (
+        '<span class="logo-mark">N</span>'
+        '<span>NEXO<span class="logo-dot">.</span></span>'
+    )
 
 amh_imagen = bloque_imagen(
     "amh-entrega-01.jpg",
@@ -91,48 +130,11 @@ roothua_imagen = bloque_imagen(
     "Roothúa · Publicidad y contenido digital",
 )
 
-
-def logo_amh_asset():
-    """Carga el logotipo de AMH desde assets/logo-hepatologia.svg."""
-    archivo = ASSETS / "logo-hepatologia.svg"
-
-    if not archivo.exists():
-        return (
-            '<div class="client-logo-card client-logo-feature">'
-            '<span class="client-logo-mark">AMH</span>'
-            '<small>Asociación Mexicana de Hepatología</small>'
-            "</div>"
-        )
-
-    src = imagen_base64("logo-hepatologia.svg")
-
-    return (
-        '<div class="client-logo-card client-logo-feature">'
-        f'<img class="client-logo-svg" src="{src}" '
-        'alt="Asociación Mexicana de Hepatología">'
-        "</div>"
-    )
-
-
-def logo_roothua_asset():
-    """Carga el logotipo de Roothúa desde assets/roothua_logo.svg."""
-    src = imagen_base64("roothua_logo.svg")
-
-    if not src:
-        return ""
-
-    return (
-        '<div class="client-logo-card client-logo-feature">'
-        f'<img class="client-logo-svg" src="{src}" alt="Roothúa">'
-        "</div>"
-    )
-
-
 clientes_logos = logo_amh_asset() + logo_roothua_asset()
 
 
 # ==================================================
-# PÁGINA HTML
+# PÁGINA
 # ==================================================
 pagina = r"""
 <!DOCTYPE html>
@@ -144,11 +146,9 @@ pagina = r"""
 <style>
 :root {
     --bg: #F5F8FC;
-    --bg2: #FFFFFF;
     --panel: #FFFFFF;
     --blue: #087BFF;
     --blue2: #075EAD;
-    --cyan: #007F9E;
     --white: #14263D;
     --muted: #596B80;
     --border: #DCE4EE;
@@ -173,10 +173,6 @@ body {
 a {
     color: inherit;
     text-decoration: none;
-}
-
-button, input, textarea, select {
-    font: inherit;
 }
 
 .wrap {
@@ -249,7 +245,7 @@ nav {
 }
 
 /* ==================================================
-   TRANSICIÓN DE CORTINAS AZULES
+   CORTINAS DE TELA AZUL
    ================================================== */
 #curtain-transition {
     position: fixed;
@@ -259,6 +255,7 @@ nav {
     visibility: hidden;
     overflow: hidden;
     display: flex;
+    background: transparent;
 }
 
 #curtain-transition.active {
@@ -267,65 +264,94 @@ nav {
 
 .curtain-panel {
     position: absolute;
-    top: 0;
-    width: 51%;
-    height: 100%;
-    background: linear-gradient(
-        135deg,
-        #064A91 0%,
-        #075EAD 45%,
-        #087BFF 100%
-    );
-    transition: transform 850ms cubic-bezier(.76, 0, .24, 1);
+    top: -2%;
+    width: 52%;
+    height: 104%;
+    overflow: hidden;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(3, 24, 58, .52) 0px,
+            rgba(3, 24, 58, .25) 7px,
+            rgba(70, 139, 211, .30) 17px,
+            rgba(11, 53, 105, .30) 28px,
+            rgba(2, 22, 52, .48) 40px
+        ),
+        linear-gradient(
+            180deg,
+            #174b82 0%,
+            #0d3a70 50%,
+            #082952 100%
+        );
+
+    box-shadow:
+        inset -12px 0 20px rgba(0, 0, 0, .15),
+        inset 12px 0 18px rgba(255, 255, 255, .06);
+
     will-change: transform;
+    transition:
+        transform 1500ms cubic-bezier(.72, 0, .24, 1);
 }
 
+/* Pliegues de tela */
+.curtain-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            rgba(0, 0, 0, .18) 10px,
+            rgba(255, 255, 255, .20) 20px,
+            rgba(255, 255, 255, .04) 27px,
+            transparent 42px
+        );
+
+    opacity: .85;
+    mix-blend-mode: soft-light;
+}
+
+/* Textura sutil del tejido */
+.curtain-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, .025) 0px,
+            rgba(255, 255, 255, .025) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    opacity: .65;
+}
+
+/* Posición inicial: cortinas abiertas */
 .curtain-panel.left {
     left: 0;
     transform: translateX(-102%);
-    border-right: 2px solid rgba(255, 255, 255, 0.35);
+    border-right: 3px solid rgba(132, 190, 245, .55);
 }
 
 .curtain-panel.right {
     right: 0;
     transform: translateX(102%);
-    border-left: 2px solid rgba(255, 255, 255, 0.35);
+    border-left: 3px solid rgba(132, 190, 245, .55);
 }
 
-/* Cierre: las cortinas avanzan hacia el centro */
+/* Cierre de las cortinas hacia el centro */
 #curtain-transition.closing .curtain-panel.left,
-#curtain-transition.opening .curtain-panel.left {
+#curtain-transition.closing .curtain-panel.right {
     transform: translateX(0);
 }
 
-#curtain-transition.closing .curtain-panel.right,
-#curtain-transition.opening .curtain-panel.right {
-    transform: translateX(0);
-}
-
-/* Marca central */
-.curtain-brand {
-    position: absolute;
-    z-index: 2;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) scale(.85);
-    color: #FFFFFF;
-    font-size: clamp(24px, 4vw, 42px);
-    font-weight: 900;
-    letter-spacing: 7px;
-    opacity: 0;
-    transition: opacity 350ms ease, transform 350ms ease;
-    white-space: nowrap;
-}
-
-#curtain-transition.closing .curtain-brand {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    transition-delay: 300ms;
-}
-
-/* Apertura: cada cortina se retira hacia su lado */
+/* Apertura hacia ambos extremos */
 #curtain-transition.opening .curtain-panel.left {
     transform: translateX(-102%);
 }
@@ -334,16 +360,43 @@ nav {
     transform: translateX(102%);
 }
 
+/* Identidad de Nexo durante la transición */
+.curtain-brand {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.92);
+
+    color: #FFFFFF;
+    font-size: clamp(26px, 4vw, 44px);
+    font-weight: 900;
+    letter-spacing: 8px;
+    white-space: nowrap;
+    opacity: 0;
+
+    text-shadow: 0 4px 22px rgba(0, 0, 0, .25);
+
+    transition:
+        opacity 450ms ease,
+        transform 450ms ease;
+}
+
+#curtain-transition.closing .curtain-brand {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    transition-delay: 450ms;
+}
+
 #curtain-transition.opening .curtain-brand {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.08);
-    transition-delay: 0ms;
+    transform: translate(-50%, -50%) scale(1.06);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .curtain-panel,
     .curtain-brand {
-        transition-duration: 150ms;
+        transition-duration: 200ms;
     }
 }
 
@@ -367,7 +420,7 @@ nav {
     height: 500px;
     background: radial-gradient(
         ellipse,
-        rgba(0,91,255,.10),
+        rgba(0, 91, 255, .10),
         transparent 68%
     );
     pointer-events: none;
@@ -429,6 +482,7 @@ h1 span, .blue {
     font-weight: 700;
     border: 1px solid var(--blue);
     transition: .2s ease;
+    cursor: pointer;
 }
 
 .btn:hover {
@@ -710,20 +764,11 @@ h1 span, .blue {
     grid-column: 1 / -1;
 }
 
-.contact-form button {
-    cursor: pointer;
-}
-
 /* ==================================================
    LOGOTIPOS DE CLIENTES
    ================================================== */
 .client-strip {
-    margin-top: 22px;
-    padding: 0;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+    margin-top: 35px;
 }
 
 .client-strip .eyebrow {
@@ -740,28 +785,16 @@ h1 span, .blue {
     width: 100%;
     min-height: 100px;
     padding: 10px 0;
-    background: transparent;
 }
 
 .client-logo-card {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 250px;
-    min-width: 0;
-    padding: 10px;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-.client-logo-feature {
-    width: 250px;
-    min-height: 0;
     padding: 10px;
     background: transparent;
-    border: none;
 }
 
 .client-logo-svg {
@@ -771,7 +804,6 @@ h1 span, .blue {
     max-height: 90px;
     height: auto;
     object-fit: contain;
-    background: transparent;
 }
 
 .client-logo-mark {
@@ -788,24 +820,8 @@ h1 span, .blue {
 }
 
 /* ==================================================
-   PIE DE PÁGINA
+   PRÓXIMOS PROYECTOS
    ================================================== */
-footer {
-    border-top: 1px solid var(--border);
-    padding: 28px 0 35px;
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
-    color: #65768A;
-    font-size: 12px;
-}
-
-footer b {
-    color: var(--white);
-    letter-spacing: 2px;
-}
-
 .upcoming {
     border-left: 3px solid var(--blue);
     padding: 5px 0 5px 22px;
@@ -819,7 +835,7 @@ footer b {
 }
 
 /* ==================================================
-   EFECTO DE RASTRO DE LA N
+   RASTRO DE LA N
    ================================================== */
 #trail-layer {
     position: fixed;
@@ -852,6 +868,25 @@ footer b {
     #trail-layer {
         display: none;
     }
+}
+
+/* ==================================================
+   PIE DE PÁGINA
+   ================================================== */
+footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 0 35px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    color: #65768A;
+    font-size: 12px;
+}
+
+footer b {
+    color: var(--white);
+    letter-spacing: 2px;
 }
 
 /* ==================================================
@@ -921,10 +956,11 @@ footer b {
 
 <div id="trail-layer" aria-hidden="true"></div>
 
-<!-- Cortinas de transición -->
+<!-- CORTINAS AZULES -->
 <div id="curtain-transition" aria-hidden="true">
     <div class="curtain-panel left"></div>
     <div class="curtain-panel right"></div>
+
     <div class="curtain-brand">
         NEXO<span style="color:#8FD8FF">.</span>
     </div>
@@ -1285,32 +1321,20 @@ footer b {
             <form class="contact-form" id="contact-form">
                 <div>
                     <label for="nombre">Nombre *</label>
-                    <input
-                        id="nombre"
-                        name="nombre"
-                        required
-                        placeholder="Tu nombre"
-                    >
+                    <input id="nombre" name="nombre" required
+                           placeholder="Tu nombre">
                 </div>
 
                 <div>
                     <label for="empresa">Empresa u organización</label>
-                    <input
-                        id="empresa"
-                        name="empresa"
-                        placeholder="Nombre de tu organización"
-                    >
+                    <input id="empresa" name="empresa"
+                           placeholder="Nombre de tu organización">
                 </div>
 
                 <div>
                     <label for="correo">Correo electrónico *</label>
-                    <input
-                        id="correo"
-                        name="correo"
-                        type="email"
-                        required
-                        placeholder="tu@correo.com"
-                    >
+                    <input id="correo" name="correo" type="email" required
+                           placeholder="tu@correo.com">
                 </div>
 
                 <div>
@@ -1329,12 +1353,8 @@ footer b {
 
                 <div class="full">
                     <label for="mensaje">Cuéntanos sobre tu proyecto *</label>
-                    <textarea
-                        id="mensaje"
-                        name="mensaje"
-                        required
-                        placeholder="¿Qué necesitas, para cuándo y en qué cantidad?"
-                    ></textarea>
+                    <textarea id="mensaje" name="mensaje" required
+                              placeholder="¿Qué necesitas, para cuándo y en qué cantidad?"></textarea>
                 </div>
 
                 <div class="full">
@@ -1344,13 +1364,14 @@ footer b {
                 </div>
             </form>
 
-            <p id="form-result" aria-live="polite" style="margin-top:16px"></p>
+            <p id="form-result" aria-live="polite"
+               style="margin-top:16px"></p>
+
             <div id="contact-links" style="margin-top:16px"></div>
         </div>
 
         <div class="client-strip">
             <div class="eyebrow">Clientes</div>
-
             <div class="client-logo-row">
                 __CLIENT_LOGOS__
             </div>
@@ -1370,13 +1391,13 @@ footer b {
 
         <div>© Nexo Promocional</div>
     </footer>
+
 </div>
 
 <script>
 /* ==================================================
    NAVEGACIÓN CON CORTINAS
-   Este controlador reemplaza el desplazamiento anterior
-   para evitar que dos eventos muevan la página a la vez.
+   Un solo controlador para evitar conflictos.
    ================================================== */
 (function () {
     const curtain = document.getElementById("curtain-transition");
@@ -1403,11 +1424,11 @@ footer b {
 
         transitioning = true;
 
-        // Cierra las cortinas desde los extremos.
+        // Cerrar las cortinas.
         curtain.classList.remove("opening");
         curtain.classList.add("active", "closing");
 
-        // Espera a que las cortinas cubran la pantalla.
+        // Esperar a que las cortinas cubran la pantalla.
         window.setTimeout(function () {
             const frame = window.frameElement;
 
@@ -1467,20 +1488,20 @@ footer b {
                 }
             }
 
-            // Pausa con la pantalla cubierta antes de abrir.
+            // Mantener la pantalla cubierta un instante.
             window.setTimeout(function () {
                 curtain.classList.remove("closing");
                 curtain.classList.add("opening");
 
-                // Espera a que termine la apertura.
+                // Esperar a que las cortinas terminen de abrirse.
                 window.setTimeout(function () {
                     curtain.classList.remove("active", "opening");
                     transitioning = false;
-                }, 900);
+                }, 1550);
 
             }, 350);
 
-        }, 950);
+        }, 1550);
     }, true);
 })();
 
@@ -1532,10 +1553,6 @@ footer b {
         visible = false;
     });
 
-    window.addEventListener("focus", function () {
-        visible = true;
-    });
-
     function animate() {
         let targetX = mouseX;
         let targetY = mouseY;
@@ -1583,8 +1600,8 @@ footer b {
     const result = document.getElementById("form-result");
     const links = document.getElementById("contact-links");
 
-    const emailDestino = "__EMAIL__";
-    const whatsappDestino = "__WHATSAPP__";
+    const emailDestino = __EMAIL_JSON__;
+    const whatsappDestino = __WHATSAPP_JSON__;
 
     if (whatsappDestino) {
         const a = document.createElement("a");
@@ -1626,7 +1643,7 @@ footer b {
                 "&body=" + encodeURIComponent(cuerpo);
 
             result.textContent =
-                "Se abrirá tu aplicación de correo para que puedas revisar y enviar la solicitud.";
+                "Se abrirá tu aplicación de correo para revisar y enviar la solicitud.";
         } else {
             const blob = new Blob(
                 [asunto + "\n\n" + cuerpo],
@@ -1643,7 +1660,8 @@ footer b {
             URL.revokeObjectURL(url);
 
             result.textContent =
-                "Descargamos tu solicitud. Configura el correo comercial para habilitar el envío directo.";
+                "Tu solicitud se descargó como archivo de texto. "
+                + "Configura el correo comercial para habilitar el envío directo.";
         }
     });
 })();
@@ -1661,12 +1679,17 @@ pagina = pagina.replace("__LOGO__", logo_html)
 pagina = pagina.replace("__AMH_IMAGE__", amh_imagen)
 pagina = pagina.replace("__PRODUCTS_IMAGE__", productos_imagen)
 pagina = pagina.replace("__ROOTHUA_IMAGE__", roothua_imagen)
-pagina = pagina.replace("__EMAIL__", html.escape(CORREO.strip(), quote=True))
-pagina = pagina.replace(
-    "__WHATSAPP__",
-    "".join(c for c in WHATSAPP if c.isdigit())
-)
 pagina = pagina.replace("__CLIENT_LOGOS__", clientes_logos)
+
+pagina = pagina.replace(
+    "__EMAIL_JSON__",
+    json.dumps(CORREO.strip()),
+)
+
+pagina = pagina.replace(
+    "__WHATSAPP_JSON__",
+    json.dumps("".join(c for c in WHATSAPP if c.isdigit())),
+)
 
 
 # ==================================================
