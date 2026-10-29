@@ -1,0 +1,37 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: .base44/Dockerfile
+    working_dir: /app
+    command:
+      - streamlit
+      - run
+      - app.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+      - --server.headless=true
+      # Sandbox preview only: the page is served through the preview proxy,
+      # whose origin differs from the container host, so Studio's origin/XSRF
+      # checks must be off for the websocket to connect (same flags the repo's
+      # own .devcontainer uses).
+      - --server.enableCORS=false
+      - --server.enableXsrfProtection=false
+      - --server.runOnSave=true
+      - --server.fileWatcherType=poll
+    volumes:
+      - .:/app
+    ports:
+      - "3000:8501"
+    environment:
+      - BASE44_PREVIEW_MODE
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3).read().strip()==b'ok' else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    restart: on-failure
