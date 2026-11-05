@@ -301,7 +301,7 @@ p {
 }
 
 .logo-img {
-    width: 305px;
+    width: 205px;
     max-height: 66px;
     object-fit: contain;
     display: block;
@@ -675,14 +675,14 @@ p {
 
 .amh-logo {
     width: 105px;
-    max-height: 48px;
-    margin-top: 18px;
+    max-height: 68px;
+    margin-top: 38px;
 }
 
 .roothua-logo {
     width: 145px;
-    max-height: 65px;
-    margin-top: 18px;
+    max-height: 85px;
+    margin-top: 38px;
 }
 
 .client-logo-text {
@@ -838,8 +838,8 @@ footer {
 
 .pointer-dot {
     position: fixed;
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
     background: var(--blue);
     border-radius: 50%;
     pointer-events: none;
