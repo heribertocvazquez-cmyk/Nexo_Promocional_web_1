@@ -12,8 +12,8 @@ import streamlit.components.v1 as components
 BASE_DIR = Path(__file__).parent
 ASSETS = BASE_DIR / "assets"
 
-CORREO = ""       # Agrega aquí tu correo
-WHATSAPP = ""     # Agrega aquí tu número con código de país
+CORREO = ""  # Agrega tu correo
+WHATSAPP = ""  # Número con código de país, si lo necesitas
 
 st.set_page_config(
     page_title="Nexo | Soluciones Comerciales",
@@ -23,7 +23,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# FUNCIONES DE IMÁGENES
+# FUNCIONES
 # ============================================================
 
 def imagen_base64(nombre):
@@ -55,22 +55,13 @@ def bloque_imagen(nombre, alt="Imagen de proyecto"):
     """
 
 
-def cargar_logo(nombre):
+def cargar_logo(nombre, clase="logo-img", alt="Nexo"):
     imagen = imagen_base64(nombre)
 
     if imagen:
-        return f'<img src="{imagen}" class="logo-img" alt="Nexo">'
+        return f'<img src="{imagen}" class="{clase}" alt="{html.escape(alt)}">'
 
     return '<span class="logo-text">NEXO<span>.</span></span>'
-
-
-def logo_cliente_amh():
-    imagen = imagen_base64("logo-hepatologia.svg")
-
-    if imagen:
-        return f'<img src="{imagen}" class="client-logo amh-logo" alt="AMH">'
-
-    return '<span class="client-logo-text">AMH</span>'
 
 
 def carrusel_imagenes(imagenes, alt):
@@ -101,11 +92,30 @@ def carrusel_imagenes(imagenes, alt):
 
 
 # ============================================================
-# IMÁGENES
+# LOGOTIPOS
 # ============================================================
 
-logo_nexo = cargar_logo("nexo-horizontal.svg")
-logo_amh = logo_cliente_amh()
+logo_nexo = cargar_logo(
+    "nexo-horizontal.svg",
+    "logo-img",
+    "Nexo Comercial"
+)
+
+logo_amh = cargar_logo(
+    "logo-hepatologia.svg",
+    "client-logo amh-logo",
+    "AMH"
+)
+
+logo_roothua = cargar_logo(
+    "roothua_logo.svg",
+    "client-logo roothua-logo",
+    "Roothúa"
+)
+
+# ============================================================
+# IMÁGENES DE PROYECTOS
+# ============================================================
 
 amh_images = [
     "amh-entrega-01.jpg",
@@ -146,6 +156,7 @@ pagina = r"""
     --gray: #A4A8B0;
     --white: #F7F8FA;
     --border: rgba(255,255,255,.12);
+    --nav-height: 82px;
 }
 
 * {
@@ -156,6 +167,7 @@ pagina = r"""
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-height) + 20px);
 }
 
 body {
@@ -163,6 +175,7 @@ body {
     color: var(--white);
     font-family: 'DM Sans', sans-serif;
     overflow-x: hidden;
+    padding-top: var(--nav-height);
 }
 
 a {
@@ -176,7 +189,8 @@ button {
 
 section {
     position: relative;
-    padding: 110px 8%;
+    padding: 105px 8%;
+    scroll-margin-top: calc(var(--nav-height) + 20px);
 }
 
 .container {
@@ -190,7 +204,7 @@ section {
     letter-spacing: 3px;
     font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 25px;
+    margin-bottom: 22px;
 }
 
 h1, h2, h3 {
@@ -199,7 +213,7 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: clamp(48px, 7vw, 100px);
+    font-size: clamp(48px, 7vw, 96px);
     line-height: .98;
     font-weight: 600;
 }
@@ -266,26 +280,29 @@ p {
     margin: 4px;
 }
 
-/* NAV */
+/* ============================================================
+   CABECERA FIJA
+============================================================ */
 
 .nav {
     position: fixed;
     width: 100%;
+    height: var(--nav-height);
     top: 0;
     left: 0;
     z-index: 1000;
-    padding: 20px 7%;
+    padding: 10px 7%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(8,9,11,.82);
+    background: rgba(8,9,11,.96);
     backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(255,255,255,.05);
+    border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
 .logo-img {
     width: 205px;
-    max-height: 72px;
+    max-height: 66px;
     object-fit: contain;
     display: block;
 }
@@ -323,13 +340,16 @@ p {
     border-radius: 3px;
 }
 
-/* HERO */
+/* ============================================================
+   HERO / PORTADA COMPACTA
+============================================================ */
 
 .hero {
-    min-height: 100vh;
+    min-height: 75vh;
     display: flex;
     align-items: center;
-    padding-top: 160px;
+    padding-top: 65px;
+    padding-bottom: 85px;
     overflow: hidden;
     background:
         radial-gradient(circle at 80% 35%, rgba(8,123,255,.17), transparent 35%),
@@ -347,21 +367,21 @@ p {
 }
 
 .hero-description {
-    max-width: 550px;
-    margin: 30px 0;
-    font-size: 17px;
+    max-width: 520px;
+    margin: 22px 0;
+    font-size: 16px;
 }
 
 .hero-buttons {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    margin-top: 35px;
+    margin-top: 25px;
 }
 
 .hero-bottom {
     position: absolute;
-    bottom: 45px;
+    bottom: 22px;
     left: 8%;
     right: 8%;
     display: flex;
@@ -372,11 +392,13 @@ p {
     text-transform: uppercase;
 }
 
-/* MARQUEE */
+/* ============================================================
+   MARQUEE
+============================================================ */
 
 .marquee {
     overflow: hidden;
-    padding: 24px 0;
+    padding: 20px 0;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     background: #0B0D12;
@@ -390,9 +412,9 @@ p {
 
 .marquee span {
     font-family: 'Space Grotesk';
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    margin: 0 45px;
+    margin: 0 40px;
     color: #858A94;
     letter-spacing: 2px;
 }
@@ -402,7 +424,9 @@ p {
     to { transform: translateX(-50%); }
 }
 
-/* ABOUT */
+/* ============================================================
+   NOSOTROS
+============================================================ */
 
 .about-grid {
     display: grid;
@@ -434,7 +458,9 @@ p {
     font-size: 12px;
 }
 
-/* SERVICES */
+/* ============================================================
+   SERVICIOS
+============================================================ */
 
 .services {
     background: #0B0D12;
@@ -475,7 +501,9 @@ p {
     font-size: 14px;
 }
 
-/* PROJECTS */
+/* ============================================================
+   EXPERIENCIA Y PROYECTOS
+============================================================ */
 
 .project-intro {
     display: flex;
@@ -521,7 +549,9 @@ p {
     min-width: 0;
 }
 
-/* CAROUSEL */
+/* ============================================================
+   CARRUSELES
+============================================================ */
 
 .carousel {
     position: relative;
@@ -633,7 +663,40 @@ p {
     transform: scale(1.4);
 }
 
-/* PROCESS */
+/* ============================================================
+   LOGOS DE CLIENTES
+============================================================ */
+
+.client-logo {
+    display: block;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.amh-logo {
+    width: 105px;
+    max-height: 48px;
+    margin-top: 18px;
+}
+
+.roothua-logo {
+    width: 145px;
+    max-height: 65px;
+    margin-top: 18px;
+}
+
+.client-logo-text {
+    color: white;
+    font-family: 'Space Grotesk';
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 22px;
+    margin-top: 20px;
+}
+
+/* ============================================================
+   PROCESO
+============================================================ */
 
 .process {
     background: #0B0D12;
@@ -664,7 +727,9 @@ p {
     font-size: 13px;
 }
 
-/* CONTACT */
+/* ============================================================
+   CONTACTO
+============================================================ */
 
 .contact {
     background:
@@ -690,8 +755,7 @@ p {
 }
 
 .contact-form input,
-.contact-form textarea,
-.contact-form select {
+.contact-form textarea {
     width: 100%;
     background: #101319;
     border: 1px solid var(--border);
@@ -717,7 +781,9 @@ p {
     justify-content: center;
 }
 
-/* FOOTER */
+/* ============================================================
+   FOOTER
+============================================================ */
 
 footer {
     padding: 35px 8%;
@@ -741,7 +807,9 @@ footer {
     color: var(--blue);
 }
 
-/* CURTAIN */
+/* ============================================================
+   CORTINA AZUL
+============================================================ */
 
 .curtain {
     position: fixed;
@@ -764,7 +832,9 @@ footer {
     100% { transform: scaleY(0); transform-origin: top; }
 }
 
-/* POINTER */
+/* ============================================================
+   CURSOR
+============================================================ */
 
 .pointer-dot {
     position: fixed;
@@ -778,20 +848,26 @@ footer {
     box-shadow: 0 0 15px var(--blue);
 }
 
-/* RESPONSIVE */
+/* ============================================================
+   RESPONSIVE
+============================================================ */
 
 @media(max-width: 900px) {
+    :root {
+        --nav-height: 74px;
+    }
+
     section {
         padding: 85px 6%;
     }
 
     .nav {
-        padding: 15px 6%;
+        padding: 10px 6%;
     }
 
     .logo-img {
         width: 165px;
-        max-height: 60px;
+        max-height: 55px;
     }
 
     .nav-links {
@@ -828,8 +904,12 @@ footer {
 }
 
 @media(max-width: 600px) {
+    :root {
+        --nav-height: 68px;
+    }
+
     .nav {
-        align-items: center;
+        padding: 8px 5%;
     }
 
     .logo-img {
@@ -838,7 +918,7 @@ footer {
     }
 
     .nav-links {
-        gap: 12px;
+        gap: 10px;
     }
 
     .nav-links a:not(.nav-cta) {
@@ -850,8 +930,9 @@ footer {
     }
 
     .hero {
-        min-height: 90vh;
-        padding-top: 140px;
+        min-height: 70vh;
+        padding-top: 45px;
+        padding-bottom: 75px;
     }
 
     .hero-description {
@@ -913,7 +994,7 @@ footer {
 
 <div class="curtain" id="curtain"></div>
 
-<!-- NAV -->
+<!-- CABECERA -->
 <nav class="nav">
     <a href="#inicio" class="logo">__LOGO__</a>
 
@@ -925,7 +1006,7 @@ footer {
     </div>
 </nav>
 
-<!-- HERO -->
+<!-- PORTADA -->
 <section class="hero" id="inicio">
     <div class="container hero-content">
         <div class="eyebrow">Soluciones comerciales · Creatividad · Producción</div>
@@ -1098,7 +1179,7 @@ footer {
             </div>
         </div>
 
-        <!-- ROOTHÚA -->
+        <!-- ROOTÚA -->
         <div class="project reverse">
             <div class="project-visual">
                 __ROOT_CAROUSEL__
@@ -1125,7 +1206,7 @@ footer {
                     <span class="tag">Proyectos</span>
                 </div>
 
-                <div class="client-logo-text">ROOTHÚA</div>
+                __ROOT_LOGO__
             </div>
         </div>
 
@@ -1200,7 +1281,7 @@ footer {
 
 <script>
 /* ============================================================
-   CURTAIN NAVIGATION
+   NAVEGACIÓN Y CORTINA
 ============================================================ */
 
 const curtain = document.getElementById('curtain');
@@ -1217,13 +1298,13 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
         curtain.classList.add('active');
 
         setTimeout(() => {
-            target.scrollIntoView({behavior: 'smooth'});
+            target.scrollIntoView({behavior: 'smooth', block: 'start'});
         }, 250);
     });
 });
 
 /* ============================================================
-   CAROUSELS
+   CARRUSELES AUTOMÁTICOS
 ============================================================ */
 
 document.querySelectorAll('[data-carousel]').forEach(carousel => {
@@ -1235,11 +1316,6 @@ document.querySelectorAll('[data-carousel]').forEach(carousel => {
 
     let index = 0;
     let timer;
-
-    if (slides.length <= 1) {
-        prev.style.display = 'none';
-        next.style.display = 'none';
-    }
 
     slides.forEach((slide, i) => {
         const dot = document.createElement('button');
@@ -1267,7 +1343,10 @@ document.querySelectorAll('[data-carousel]').forEach(carousel => {
 
     function restart() {
         clearInterval(timer);
-        timer = setInterval(() => goTo(index + 1), 4500);
+
+        if (slides.length > 1) {
+            timer = setInterval(() => goTo(index + 1), 4500);
+        }
     }
 
     prev.addEventListener('click', () => {
@@ -1283,11 +1362,16 @@ document.querySelectorAll('[data-carousel]').forEach(carousel => {
     carousel.addEventListener('mouseenter', () => clearInterval(timer));
     carousel.addEventListener('mouseleave', restart);
 
+    if (slides.length <= 1) {
+        prev.style.display = 'none';
+        next.style.display = 'none';
+    }
+
     restart();
 });
 
 /* ============================================================
-   CONTACT FORM
+   FORMULARIO
 ============================================================ */
 
 document.getElementById('contactForm').addEventListener('submit', function(e) {
@@ -1302,6 +1386,7 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     const correo = '__CORREO__';
 
     const subject = encodeURIComponent('Nuevo proyecto Nexo - ' + nombre);
+
     const body = encodeURIComponent(
         'Nombre: ' + nombre + '\n' +
         'Empresa: ' + empresa + '\n' +
@@ -1319,7 +1404,7 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
 });
 
 /* ============================================================
-   POINTER TRAIL
+   EFECTO DE CURSOR
 ============================================================ */
 
 if (window.matchMedia('(pointer:fine)').matches) {
@@ -1327,6 +1412,7 @@ if (window.matchMedia('(pointer:fine)').matches) {
 
     document.addEventListener('mousemove', function(e) {
         const now = Date.now();
+
         if (now - lastTime < 40) return;
         lastTime = now;
 
@@ -1345,9 +1431,7 @@ if (window.matchMedia('(pointer:fine)').matches) {
 
         setTimeout(() => dot.remove(), 600);
     });
-}
-
-/* YEAR */
+});
 
 document.getElementById('year').textContent = new Date().getFullYear();
 </script>
@@ -1357,11 +1441,12 @@ document.getElementById('year').textContent = new Date().getFullYear();
 """
 
 # ============================================================
-# INTEGRACIÓN DE ASSETS
+# SUSTITUCIÓN DE CONTENIDO
 # ============================================================
 
 pagina = pagina.replace("__LOGO__", logo_nexo)
 pagina = pagina.replace("__AMH_LOGO__", logo_amh)
+pagina = pagina.replace("__ROOT_LOGO__", logo_roothua)
 
 pagina = pagina.replace(
     "__AMH_CAROUSEL__",
@@ -1376,7 +1461,7 @@ pagina = pagina.replace(
 pagina = pagina.replace("__CORREO__", CORREO)
 
 # ============================================================
-# RENDER
+# RENDERIZADO
 # ============================================================
 
 components.html(
