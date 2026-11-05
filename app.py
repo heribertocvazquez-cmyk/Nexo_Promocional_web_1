@@ -301,7 +301,7 @@ p {
 }
 
 .logo-img {
-    width: 205px;
+    width: 305px;
     max-height: 66px;
     object-fit: contain;
     display: block;
